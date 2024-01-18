@@ -21,6 +21,9 @@ endif
 ifneq ($(strip $(C++_DEPS)),)
 -include $(C++_DEPS)
 endif
+ifneq ($(strip $(CCM_DEPS)),)
+-include $(CCM_DEPS)
+endif
 ifneq ($(strip $(C_UPPER_DEPS)),)
 -include $(C_UPPER_DEPS)
 endif
@@ -32,6 +35,12 @@ ifneq ($(strip $(S_DEPS)),)
 endif
 ifneq ($(strip $(S_UPPER_DEPS)),)
 -include $(S_UPPER_DEPS)
+endif
+ifneq ($(strip $(CXXM_DEPS)),)
+-include $(CXXM_DEPS)
+endif
+ifneq ($(strip $(C++M_DEPS)),)
+-include $(C++M_DEPS)
 endif
 ifneq ($(strip $(C_DEPS)),)
 -include $(C_DEPS)
@@ -49,34 +58,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := lcd_i2c_test
+BUILD_ARTIFACT_NAME := heat_plate_stm32
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-lcd_i2c_test.elf \
+heat_plate_stm32.elf \
 
 MAP_FILES += \
-lcd_i2c_test.map \
+heat_plate_stm32.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-lcd_i2c_test.list \
+heat_plate_stm32.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: lcd_i2c_test.elf secondary-outputs
+main-build: heat_plate_stm32.elf secondary-outputs
 
 # Tool invocations
-lcd_i2c_test.elf lcd_i2c_test.map: $(OBJS) $(USER_OBJS) C:\Users\ORZ\STM32CubeIDE\workspace_1.13.1\lcd_i2c_test\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "lcd_i2c_test.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\ORZ\STM32CubeIDE\workspace_1.13.1\lcd_i2c_test\STM32F103C8TX_FLASH.ld" -Wl,-Map="lcd_i2c_test.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+heat_plate_stm32.elf heat_plate_stm32.map: $(OBJS) $(USER_OBJS) C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\heat_plate_stm32\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "heat_plate_stm32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\heat_plate_stm32\STM32F103C8TX_FLASH.ld" -Wl,-Map="heat_plate_stm32.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -85,14 +94,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-lcd_i2c_test.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "lcd_i2c_test.list"
+heat_plate_stm32.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "heat_plate_stm32.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout lcd_i2c_test.elf lcd_i2c_test.list lcd_i2c_test.map
+	-$(RM) default.size.stdout heat_plate_stm32.elf heat_plate_stm32.list heat_plate_stm32.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
