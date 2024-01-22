@@ -5,7 +5,7 @@
 #include "stm32f1xx_hal.h"
 #include "stdio.h"
 #include "stdlib.h"
-
+#include "encoder.h"
 
 enum display{
 	ReflowSoldering_select,
@@ -16,7 +16,7 @@ enum display{
 	Reflow_Soliding_process
 };
 
-struct Meun {   // Structure declaration
+struct meun {   // Structure declaration
 
 	uint8_t nowTemp;
 	uint8_t targetTemp;

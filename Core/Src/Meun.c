@@ -51,13 +51,18 @@
 
 
  */
-#include "Meun.h"
+#include <meun.h>
 
 uint8_t meunIndex = 1;
-uint8_t meunState;
+uint8_t meunUpdateState;
+
 enum display meunIndex;
 extern uint8_t counter;
-struct Meun x1;
+struct meun x1;
+
+void meunUpdate(){
+	meunUpdateState = 1;
+}
 
 void startScreeen() {
 	HD44780_Clear();
@@ -116,7 +121,7 @@ void _PID_Auto_Tuning_OK() {
 	HD44780_PrintStr("PID Tuning OK");
 }
 
-void _PID_Auto_Tuning_fail(){
+void _PID_Auto_Tuning_fail() {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("PID Auto Tuning");
@@ -129,7 +134,7 @@ void _PID_Auto_Tuning_fail(){
  *|N_T:XXX S_T:XXX |
  *------------------
  */
-void reflow_Soliding_process(){
+void reflow_Soliding_process() {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
@@ -149,26 +154,28 @@ void reflow_Soliding_process(){
 }
 
 void meunControl() {
-	switch (meunIndex) {
-	case 0:
-		reflowSoldering_select();
-		break;
-	case 1:
-		_PID_Auto_Tuning_select();
-		break;
-	case 2:
-		_PID_Auto_Tuning_wait();
-		break;
-	case 3:
-		_PID_Auto_Tuning_OK();
-		break;
-	case 4:
-		_PID_Auto_Tuning_fail();
-		break;
-	case 5:
-		reflow_Soliding_process();
-		break;
-	default:
-		return;
+	if (meunUpdateState == 1) {
+		switch (meunIndex) {
+		case 0:
+			reflowSoldering_select();
+			break;
+		case 1:
+			_PID_Auto_Tuning_select();
+			break;
+		case 2:
+			_PID_Auto_Tuning_wait();
+			break;
+		case 3:
+			_PID_Auto_Tuning_OK();
+			break;
+		case 4:
+			_PID_Auto_Tuning_fail();
+			break;
+		case 5:
+			reflow_Soliding_process();
+			break;
+		default:
+			return;
+		}
 	}
 }
