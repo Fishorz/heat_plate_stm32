@@ -1,0 +1,3 @@
+use table to find tempreture
+https://github.com/Egoruch/NTC-STM32-HAL/tree/master
+https://cxemka.com/63-podklyuchenie-ntc-termistora-k-stm32-izmerenie-temperatury.html
