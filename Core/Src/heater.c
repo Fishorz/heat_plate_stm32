@@ -24,7 +24,7 @@ float GetTemp(void) {
 }
 
 void calculatePID() {
-	Temp = GetTemp();
+	currentTemp = GetTemp();
 	PID_Compute(&TPID);
 
 	//sprintf(msg, "Temperature: %3.2f /PID Value: %d\r\n", Temp,(int16_t) PIDOut);

@@ -1,3 +1,4 @@
+"./Core/Src/NTCtempSensor.o"
 "./Core/Src/encoder.o"
 "./Core/Src/heater.o"
 "./Core/Src/liquidcrystal_i2c.o"
