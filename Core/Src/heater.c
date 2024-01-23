@@ -25,7 +25,7 @@ float GetTemp(void) {
 
 void calculatePID() {
 	currentTemp = GetTemp();
-	PID_Compute(&TPID);
+//	PID_Compute(&TPID);
 
 	//sprintf(msg, "Temperature: %3.2f /PID Value: %d\r\n", Temp,(int16_t) PIDOut);
 	//HAL_UART_Transmit(&huart1, (uint8_t*) msg, strlen(msg), 100);

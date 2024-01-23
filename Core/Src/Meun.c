@@ -52,17 +52,15 @@
 
  */
 #include <meun.h>
+#include "encoder.h"
 
 uint8_t meunIndex = 1;
+uint8_t previousMeunIndex = 0;
 uint8_t meunUpdateState;
 
 enum display meunIndex;
 extern uint8_t counter;
 struct meun x1;
-
-void meunUpdate(){
-	meunUpdateState = 1;
-}
 
 void startScreeen() {
 	HD44780_Clear();
@@ -153,8 +151,9 @@ void reflow_Soliding_process() {
 	HD44780_PrintStr(displayTemp);
 }
 
-void meunControl() {
+void displayMeunHandler() {
 	if (meunUpdateState == 1) {
+		meunUpdateState = 0;
 		switch (meunIndex) {
 		case 0:
 			reflowSoldering_select();
@@ -177,5 +176,24 @@ void meunControl() {
 		default:
 			return;
 		}
+	}
+}
+
+void selectMeunHandler() {
+//	int _encoderState_ = 0;
+//	_encoderState_ = encoderState();
+	//change meun selection(pid or reflow)
+	if (encoderState() > 0 && meunIndex == 0) {
+		meunIndex = 1;
+	}
+	if (encoderState() < 0 && meunIndex == 1) {
+		meunIndex = 0;
+	}
+	//which meun selected
+	if (btnState() == 1 && meunIndex == 0) {
+		reflow_Soliding_process();
+	}
+	if (btnState() == 1 && meunIndex == 1) {
+		_PID_Auto_Tuning_wait();
 	}
 }

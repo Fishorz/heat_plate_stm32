@@ -134,11 +134,11 @@ uint8_t PID_Compute(PID_TypeDef *uPID)
 		}
 		else { }
 		
-		*uPID->MyOutput = output;
+		*uPID->MyOutput = output; //**uPID.MyOutPut
 		
 		/* ..... Remember some variables for next time ..... */
-		uPID->LastInput = input;
-		uPID->LastTime = now;
+		uPID->LastInput = input; //*uPID.LastInput
+		uPID->LastTime = now;	//&uPID = 0x123123
 		
 		return _TRUE;
 		

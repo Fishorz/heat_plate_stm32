@@ -25,6 +25,7 @@
 #include "liquidcrystal_i2c.h"
 #include "meun.h"
 #include "pid.h"
+#include "NTCtempSensor.h"
 //#include "stm32f1xx_hal.h"
 /* USER CODE END Includes */
 
@@ -36,6 +37,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 uint16_t counter = 0;
+PID_TypeDef pid;
+double input, output, setpoint;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,9 +54,6 @@ I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
-TIM_HandleTypeDef htim4;
-
-PID_TypeDef TPID;
 
 /* USER CODE BEGIN PV */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -69,9 +70,7 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM4_Init(void);
 static void MX_TIM3_Init(void);
-
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -104,7 +103,6 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 	HD44780_Init(2);
-	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -112,14 +110,14 @@ int main(void)
   MX_ADC1_Init();
   MX_I2C1_Init();
   MX_TIM2_Init();
-  MX_TIM4_Init();
   MX_TIM3_Init();
+//  PID(&pid, &input, &output, &setpoint, Kp, Ki, Kd, POn, ControllerDirection);
   /* USER CODE BEGIN 2 */
 	startScreeen();
-	PID(&TPID, &currentTemp, &PIDOut, &TempSetpoint, 2, 5, 1, _PID_P_ON_E, _PID_CD_DIRECT);
-	PID_SetMode(&TPID, _PID_MODE_AUTOMATIC);
-	PID_SetSampleTime(&TPID, 500);
-	PID_SetOutputLimits(&TPID, -100, 100);
+//	PID(&TPID, &currentTemp, &PIDOut, &TempSetpoint, 2, 5, 1, _PID_P_ON_E, _PID_CD_DIRECT);
+//	PID_SetMode(&TPID, _PID_MODE_AUTOMATIC);
+//	PID_SetSampleTime(&TPID, 500);
+//	PID_SetOutputLimits(&TPID, -100, 100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -128,8 +126,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 		if (counter % 100 == 1) {
-			meunControl();
+//			ADC_Select_CH0();
+		}
+		if (counter % 10 == 1) {
 		}
 	}
 
@@ -366,55 +367,6 @@ static void MX_TIM3_Init(void)
 }
 
 /**
-  * @brief TIM4 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM4_Init(void)
-{
-
-  /* USER CODE BEGIN TIM4_Init 0 */
-
-  /* USER CODE END TIM4_Init 0 */
-
-  TIM_Encoder_InitTypeDef sConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM4_Init 1 */
-
-  /* USER CODE END TIM4_Init 1 */
-  htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 0;
-  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 65535;
-  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
-  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
-  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
-  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
-  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
-  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
-  if (HAL_TIM_Encoder_Init(&htim4, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM4_Init 2 */
-
-  /* USER CODE END TIM4_Init 2 */
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -441,8 +393,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  /*Configure GPIO pins : encoderBtn_Pin encoderPinB_Pin encoderPinA_Pin */
+  GPIO_InitStruct.Pin = encoderBtn_Pin|encoderPinB_Pin|encoderPinA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
