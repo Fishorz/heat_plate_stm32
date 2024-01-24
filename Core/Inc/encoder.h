@@ -10,6 +10,7 @@
 
 #include "stm32f1xx_hal.h"
 
-
+int btnState();
+int encoderState();
 
 #endif /* INC_ENCODER_H_ */
