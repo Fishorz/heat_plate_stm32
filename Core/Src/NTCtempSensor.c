@@ -5,8 +5,6 @@
 //y=0.111x+264.262
 //y=resistor x=temp
 
-#define supplyVoltage 3.3
-#define refenceResistor 4.7 * 1000
 
 //extern ADC_HandleTypeDef hadc1;
 //extern ADC_ChannelConfTypeDef sConfig;

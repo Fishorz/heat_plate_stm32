@@ -7,6 +7,8 @@
 
 #ifndef INC_NTCTEMPSENSOR_H_
 #define INC_NTCTEMPSENSOR_H_
+#define supplyVoltage 3.3
+#define refenceResistor 4.7 * 1000
 
 #include "stm32f1xx_hal.h"
 
