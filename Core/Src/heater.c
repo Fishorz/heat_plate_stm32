@@ -6,26 +6,25 @@
  */
 
 #include "heater.h"
-#define TEMP_SET_POINT 50.1
-extern double currentTemp, PIDOut, TempSetpoint;
+uint16_t setpoint = SETPOINT;
 
-float GetTemp(void) {
+PIDController pid = { PID_KP, PID_KI, PID_KD,
+PID_TAU,
+PID_LIM_MIN, PID_LIM_MAX,
+PID_LIM_MIN_INT, PID_LIM_MAX_INT,
+SAMPLE_TIME_S };
 
-	/*
-	 * Temperature simulink by ratio of PIDOut
-	 */
+NTC_TypeDef ntc1;
+extern ADC_HandleTypeDef hadc1;
+ADC_ChannelConfTypeDef heaterADC;
 
-	static float tmp = 0;
-
-	tmp += (PIDOut / 100);
-
-	return tmp;
+void heaterInit() {
+	PIDController_Init(&pid);
 }
 
-void calculatePID() {
-	currentTemp = GetTemp();
-//	PID_Compute(&TPID);
+void heating() {
+	/* Compute new control signal */
+	calTemp(&hadc1, &heaterADC, &ntc1);
+	PIDController_Update(&pid, setpoint, ntc1.temp[0]);
 
-	//sprintf(msg, "Temperature: %3.2f /PID Value: %d\r\n", Temp,(int16_t) PIDOut);
-	//HAL_UART_Transmit(&huart1, (uint8_t*) msg, strlen(msg), 100);
 }
