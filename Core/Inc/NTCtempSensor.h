@@ -19,5 +19,10 @@ void getAdcVoltage(ADC_HandleTypeDef *hadc,
 		ADC_ChannelConfTypeDef *sConfig);
 void calTemp(ADC_HandleTypeDef *hadc,
 		ADC_ChannelConfTypeDef *sConfig);
+typedef struct {
+	uint8_t adcValue[3];
+	float temp[3];
+	int resistor[3];
 
+} NTC_TypeDef;
 #endif /* INC_NTCTEMPSENSOR_H_ */

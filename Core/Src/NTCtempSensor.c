@@ -8,8 +8,6 @@
 
 //extern ADC_HandleTypeDef hadc1;
 //extern ADC_ChannelConfTypeDef sConfig;
-uint8_t adcValue0, adcValue1, adcValue2;
-float temp1, temp2, temp3;
 
 void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 		uint32_t channel) {
