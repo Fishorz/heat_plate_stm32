@@ -24,7 +24,6 @@
 //#include "Button.h"
 #include "liquidcrystal_i2c.h"
 #include "meun.h"
-#include "pid.h"
 #include "NTCtempSensor.h"
 //#include "stm32f1xx_hal.h"
 /* USER CODE END Includes */
@@ -37,8 +36,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 uint16_t counter = 0;
-PID_TypeDef pid;
-double input, output, setpoint;
 
 /* USER CODE END PD */
 

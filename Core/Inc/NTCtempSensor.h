@@ -7,12 +7,13 @@
 
 #ifndef INC_NTCTEMPSENSOR_H_
 #define INC_NTCTEMPSENSOR_H_
+
 #define supplyVoltage 3.3
 #define refenceResistor 4.7 * 1000
 
 #include "stm32f1xx_hal.h"
 
-uint32_t const ADC_CHANNE[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
+//const uint32_t ADC_CHANNEL[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
 
 typedef struct {
 	uint8_t adcValue[3];

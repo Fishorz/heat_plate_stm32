@@ -1,14 +1,9 @@
 #include "NTCtempSensor.h"
-//extern ADC_HandleTypeDef hadc1;
 
-//const float temperature_table [2][3] = {{25, 150, 250}, {103180, 1366.2, 168.6}};
 //y=0.111x+264.262
 //y=resistor x=temp
 
-
-
-//extern ADC_HandleTypeDef hadc1;
-//extern ADC_ChannelConfTypeDef sConfig;
+const uint32_t ADC_CHANNEL[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
 
 void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 		uint32_t channel) {
@@ -24,12 +19,11 @@ void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 
 	for (int i = 0; i < 3; i++) {
 		//change ADC selection
-		adcSelect(hadc, sConfig, ADC_CHANNE[i]);
+		adcSelect(hadc, sConfig, ADC_CHANNEL[i]);
 		//get ADC value
 		uNTC->adcValue[i] = HAL_ADC_GetValue(hadc);
 		//cal resistor
-		uNTC->resistor[i] = (uNTC->adcValue[0] * refenceResistor)
-				/ (supplyVoltage - uNTC->adcValue[0]);
+		uNTC->resistor[i] = (uNTC->adcValue[0] * refenceResistor) / (supplyVoltage - uNTC->adcValue[0]);
 
 //		calculating temperature
 		//y=0.111x+264.262

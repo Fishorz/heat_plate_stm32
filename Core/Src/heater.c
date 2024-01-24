@@ -6,7 +6,6 @@
  */
 
 #include "heater.h"
-#include "pid.h"
 #define TEMP_SET_POINT 50.1
 extern double currentTemp, PIDOut, TempSetpoint;
 
