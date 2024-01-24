@@ -6,6 +6,7 @@
 //y=resistor x=temp
 
 
+
 //extern ADC_HandleTypeDef hadc1;
 //extern ADC_ChannelConfTypeDef sConfig;
 
@@ -16,22 +17,23 @@ void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 	HAL_ADC_PollForConversion(hadc, 100);
 }
 
-void getAdcVoltage(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig) {
+void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
+		NTC_TypeDef *uNTC) {
+//	getAdcVoltage(hadc, sConfig, uNTC);
+	//calculating resistor value
 
-	adcSelect(hadc, sConfig, ADC_CHANNEL_0);
-	adcValue0 = HAL_ADC_GetValue(hadc);
+	for (int i = 0; i < 3; i++) {
+		//change ADC selection
+		adcSelect(hadc, sConfig, ADC_CHANNE[i]);
+		//get ADC value
+		uNTC->adcValue[i] = HAL_ADC_GetValue(hadc);
+		//cal resistor
+		uNTC->resistor[i] = (uNTC->adcValue[0] * refenceResistor)
+				/ (supplyVoltage - uNTC->adcValue[0]);
 
-	adcSelect(hadc, sConfig, ADC_CHANNEL_1);
-	adcValue1 = HAL_ADC_GetValue(hadc);
-
-	adcSelect(hadc, sConfig, ADC_CHANNEL_2);
-	adcValue2 = HAL_ADC_GetValue(hadc);
-}
-
-//Vadc = (NTC/(4.7k + ntc) ) *3.3
-void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig) {
-	getAdcVoltage(hadc, sConfig);
-	//cal resistor value
-//	int resistor1, resistor2, resistor3;
-//	resistor1 = (adcValue0 * refenceResistor) / (supplyVoltage - )
+//		calculating temperature
+		//y=0.111x+264.262
+		//y=resistor x=temp
+		uNTC->temp[i] = (uNTC->resistor[i] - 264.262) / 0.111;
+	}
 }
