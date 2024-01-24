@@ -54,13 +54,19 @@
 #include <meun.h>
 #include "encoder.h"
 
-uint8_t meunIndex = 1;
-uint8_t previousMeunIndex = 0;
-uint8_t meunUpdateState;
+//uint8_t meunIndex = 1;
+//uint8_t previousMeunIndex = 0;
+//uint8_t meunUpdateState;
 
 enum display meunIndex;
 extern uint8_t counter;
-struct meun x1;
+
+void meunInit(MEUN_TypeDef *meun){
+	meun->meunIndex = 0;
+	meun->previousMeunIndex = 0;
+	meun->meunUpdateState = 0;
+	HD44780_Init(2);
+}
 
 void startScreeen() {
 	HD44780_Clear();
@@ -132,29 +138,29 @@ void _PID_Auto_Tuning_fail() {
  *|N_T:XXX S_T:XXX |
  *------------------
  */
-void reflow_Soliding_process() {
+void reflow_Soliding_process(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("step:");
-	HD44780_PrintStr(&(x1.status));
+	HD44780_PrintStr(&(meun->status));
 	HD44780_SetCursor(8, 0); //Time:
 	HD44780_PrintStr("Time:");
-	itoa(x1.heatTime, displayTemp, 10);
+	itoa(meun->heatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 	HD44780_SetCursor(0, 1);
 	HD44780_PrintStr("N_T:");
-	itoa(x1.nowTemp, displayTemp, 10);
+	itoa(meun->nowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 	HD44780_SetCursor(8, 0);
-	itoa(x1.targetTemp, displayTemp, 10);
+	itoa(meun->targetTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 
-void displayMeunHandler() {
-	if (meunUpdateState == 1) {
-		meunUpdateState = 0;
-		switch (meunIndex) {
+void displayMeunHandler(MEUN_TypeDef *meun) {
+	if (meun->meunUpdateState == 0) {
+		meun->meunUpdateState = 1;
+		switch (meun->meunIndex) {
 		case 0:
 			reflowSoldering_select();
 			break;
@@ -171,7 +177,7 @@ void displayMeunHandler() {
 			_PID_Auto_Tuning_fail();
 			break;
 		case 5:
-			reflow_Soliding_process();
+			reflow_Soliding_process(meun);
 			break;
 		default:
 			return;
@@ -179,21 +185,21 @@ void displayMeunHandler() {
 	}
 }
 
-void selectMeunHandler() {
+void selectMeunHandler(MEUN_TypeDef *meun) {
 //	int _encoderState_ = 0;
 //	_encoderState_ = encoderState();
 	//change meun selection(pid or reflow)
-	if (encoderState() > 0 && meunIndex == 0) {
-		meunIndex = 1;
+	if (encoderState() > 0 && meun->meunIndex == 0) {
+		meun->meunIndex = 1;
 	}
-	if (encoderState() < 0 && meunIndex == 1) {
-		meunIndex = 0;
+	if (encoderState() < 0 && meun->meunIndex == 1) {
+		meun->meunIndex = 0;
 	}
 	//which meun selected
-	if (btnState() == 1 && meunIndex == 0) {
-		reflow_Soliding_process();
+	if (btnState() == 1 && meun->meunIndex == 0) {
+		reflow_Soliding_process(meun);
 	}
-	if (btnState() == 1 && meunIndex == 1) {
+	if (btnState() == 1 && meun->meunIndex == 1) {
 		_PID_Auto_Tuning_wait();
 	}
 }
