@@ -26,24 +26,12 @@
 #include "meun.h"
 #include "heater.h"
 #include "NTCtempSensor.h"
+#include "debug_print.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define DEBUG_PRINT 1
-#ifdef __GNUC__
 
-/* With GCC, small printf (option LD Linker->Libraries->Small printf
-
- set to 'Yes') calls __io_putchar() */
-
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-
-#else
-
- #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-
-#endif /* __GNUC__ */
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -90,7 +78,7 @@ static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-void debug_print(char test[]);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -142,11 +130,7 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		char Temp[10];
-		itoa(counter, Temp, 10);
-		debug_print("counter = ");
-		debug_print(Temp);
-		debug_print("\n\r");
+
 
 		selectMeunHandler(&userMeun);
 
@@ -466,20 +450,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
-PUTCHAR_PROTOTYPE {
-	/* Place your implementation of fputc here */
-	/* e.g. write a character to the USART1 and Loop until the end of transmission */
-	HAL_UART_Transmit(&huart2, (uint8_t*) &ch, 1, 0xFFFF);
-
-	return ch;
-}
-
-void debug_print(char test[]) {
-	if (DEBUG_PRINT == 1) {
-		printf(test);
-
-	}
-}
 
 /* USER CODE END 4 */
 
