@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>lcd_i2c_test</name>
+	<name>heat_plate_stm32</name>
 	<comment></comment>
 	<projects>
 	</projects>
