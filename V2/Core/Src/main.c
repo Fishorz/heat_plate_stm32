@@ -148,6 +148,8 @@ int main(void) {
 		debug_print(Temp);
 		debug_print("\n\r");
 
+		selectMeunHandler(&userMeun);
+
 		if (counter % 14 == 1) {
 			debug_print("update meun \n\r");
 			displayMeunHandler(&userMeun);
@@ -156,7 +158,8 @@ int main(void) {
 		if (counter % 11 == 1) {
 			if (userMeun.meunIndex == 0) {
 				userMeun.meunUpdateState = 0;
-				heating(&hadc1, &ntc1, &pid1);
+//				void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
+				heating(&hadc1, &ntc1, &pid1, 1);
 				TIM3->CCR1 = pid1.out;
 				TIM3->CCR2 = pid1.out;
 				TIM3->CCR2 = pid1.out;
