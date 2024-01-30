@@ -1,0 +1,2 @@
+../Core/Src/heater.c:16:6:heaterInit	16	static
+../Core/Src/heater.c:20:6:heating	24	static

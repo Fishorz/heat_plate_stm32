@@ -1,0 +1,3 @@
+../Core/Src/encoder.c:45:6:calculatEncoder	4	static
+../Core/Src/encoder.c:68:5:btnState	16	static
+../Core/Src/encoder.c:80:5:encoderState	16	static

@@ -1,0 +1,2 @@
+../Core/Src/NTCtempSensor.c:8:6:adcSelect	24	static
+../Core/Src/NTCtempSensor.c:17:6:calTemp	40	static
