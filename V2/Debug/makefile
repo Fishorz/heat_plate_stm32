@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (11.3.rel1)
+# Toolchain: GNU Tools for STM32 (10.3-2021.10)
 ################################################################################
 
 -include ../makefile.init
@@ -60,8 +60,8 @@ all: main-build
 main-build: HeatPlate_2.elf secondary-outputs
 
 # Tool invocations
-HeatPlate_2.elf HeatPlate_2.map: $(OBJS) $(USER_OBJS) C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\HeatPlate_2\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "HeatPlate_2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\HeatPlate_2\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="HeatPlate_2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+HeatPlate_2.elf HeatPlate_2.map: $(OBJS) $(USER_OBJS) C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\heat_plate_stm32\V2\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "HeatPlate_2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\sky.chu\STM32CubeIDE\workspace_1.12.1\heat_plate_stm32\V2\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="HeatPlate_2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
