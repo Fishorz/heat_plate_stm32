@@ -17,9 +17,10 @@ void heaterInit(PIDController *pid) {
 	PIDController_Init(pid);
 }
 
-void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid) {
+void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i) {
 	/* Compute new control signal */
 	calTemp(hadc, uNTC);
-	PIDController_Update(pid, setpoint, uNTC->temp[0]);
-
+	float temp = 0;
+	temp = uNTC->temp[i];
+	PIDController_Update(pid, setpoint, temp);
 }

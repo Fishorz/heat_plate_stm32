@@ -30,6 +30,6 @@ typedef struct {
 } Heater_TypeDef;
 
 void heaterInit();
-void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid);
+void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
 
 #endif /* INC_HEATER_H_ */
