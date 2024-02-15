@@ -19,7 +19,7 @@ void calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC) {
 	//calculating resistor value
 	ADC_ChannelConfTypeDef sConfig = { 0 };
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 1; i < 4; i++) {
 		//change ADC selection
 		adcSelect(hadc, &sConfig, ADC_CHANNEL[i]);
 		//get ADC value
