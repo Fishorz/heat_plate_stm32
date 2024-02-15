@@ -9,9 +9,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
 extern UART_HandleTypeDef huart1;
 
+//debug-------------------------------------------
+#ifdef __GNUC__
+/* With GCC, small printf (option LD Linker->Libraries->Small printf
+ set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
 PUTCHAR_PROTOTYPE {
 	/* Place your implementation of fputc here */
 	/* e.g. write a character to the USART1 and Loop until the end of transmission */
@@ -19,11 +26,12 @@ PUTCHAR_PROTOTYPE {
 
 	return ch;
 }
+//debug-------------------------------------------
 
 void debug_print(char msg[]) {
 	if (DEBUG_PRINT == 1) {
 		printf(msg);
-		printf("/n/r");
+		printf("\n\r");
 	}
 }
 
@@ -34,7 +42,7 @@ void debug_print(char msg[]) {
 //	}
 //}
 
-void debug_println(char msg[]){
+void debug_println(char msg[]) {
 	if (DEBUG_PRINT == 1) {
 		printf(msg);
 	}
