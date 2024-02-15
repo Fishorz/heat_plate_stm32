@@ -25,7 +25,7 @@
 #include "stdlib.h"
 #include "meun.h"
 #include "heater.h"
-#include "NTCtempSensor.h"
+//#include "NTCtempSensor.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
 
@@ -38,7 +38,7 @@
 /* USER CODE BEGIN PD */
 uint16_t counter = 0;
 
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,7 +59,7 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
 Heater_TypeDef heater1;
-NTC_TypeDef ntc1;
+//NTC_TypeDef ntc1;
 
 PIDController pid1 = { PID_KP, PID_KI, PID_KD,
 PID_TAU,
@@ -67,16 +67,18 @@ PID_LIM_MIN, PID_LIM_MAX,
 PID_LIM_MIN_INT, PID_LIM_MAX_INT,
 SAMPLE_TIME_S };
 
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -115,17 +117,17 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM2_Init();
-  MX_ADC1_Init();
-  MX_I2C1_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
+  MX_I2C1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-	heaterInit();
+//	heaterInit();
 	meunInit(&userMeun);
 	PIDController_Init(&pid1);
-	debug_print("Init OK! \n\r");
+	debug_print("Init OK!");
 	HAL_TIM_Base_Start_IT(&htim2);
-	debug_print("Timer Start! \n\r");
+	debug_print("Timer Start!");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -133,23 +135,23 @@ int main(void)
 	while (1) {
 
 
-		selectMeunHandler(&userMeun);
+//		selectMeunHandler(&userMeun);
 
 		if (counter % 14 == 1) {
-			debug_print("update meun \n\r");
-			displayMeunHandler(&userMeun);
+//			debug_print("update meun \n\r");
+//			displayMeunHandler(&userMeun);
 		}
 
 		if (counter % 11 == 1) {
-			if (userMeun.meunIndex == 0) {
-				userMeun.meunUpdateState = 0;
-//				void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
-				heating(&hadc1, &ntc1, &pid1, 1);
-				TIM3->CCR1 = pid1.out;
-				TIM3->CCR2 = pid1.out;
-				TIM3->CCR2 = pid1.out;
-			}
-			debug_print("PID update \n\r");
+//			if (userMeun.meunIndex == 0) {
+//				userMeun.meunUpdateState = 0;
+////				void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
+//				heating(&hadc1, &ntc1, &pid1, 1);
+//				TIM3->CCR1 = pid1.out;
+//				TIM3->CCR2 = pid1.out;
+//				TIM3->CCR2 = pid1.out;
+//			}
+//			debug_print("PID update \n\r");
 		}
     /* USER CODE END WHILE */
 
@@ -468,7 +470,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	}
 }
-
 
 /* USER CODE END 4 */
 
