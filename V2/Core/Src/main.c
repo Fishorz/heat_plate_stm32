@@ -37,8 +37,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 uint16_t counter = 0;
-
-
+uint8_t rundone = 1;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,15 +58,7 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
 Heater_TypeDef heater1;
-//NTC_TypeDef ntc1;
-
-PIDController pid1 = { PID_KP, PID_KI, PID_KD,
-PID_TAU,
-PID_LIM_MIN, PID_LIM_MAX,
-PID_LIM_MIN_INT, PID_LIM_MAX_INT,
-SAMPLE_TIME_S };
-
-
+NTC_TypeDef ntc1;
 
 /* USER CODE END PV */
 
@@ -122,9 +113,8 @@ int main(void)
   MX_I2C1_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-//	heaterInit();
+	heaterInit(&heater1, 1, 1, 1, 200);
 	meunInit(&userMeun);
-	PIDController_Init(&pid1);
 	debug_print("Init OK!");
 	HAL_TIM_Base_Start_IT(&htim2);
 	debug_print("Timer Start!");
@@ -134,7 +124,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
-
+		if (counter % (50 - 1) == 1 && rundone) {
+//			debug_print("in counter display temp");
+			calTemp(&hadc1, &ntc1);
+			debug_print("Temp = ");
+			char debugPrint[10];
+			//		int x = ntc1.temp[1];
+			itoa(ntc1.temp[1], debugPrint, 10);
+			debug_print(debugPrint);
+			rundone = 0;
+		}
 //		selectMeunHandler(&userMeun);
 
 		if (counter % 14 == 1) {
@@ -307,9 +306,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 10-1;
+  htim2.Init.Prescaler = 1000-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 360-1;
+  htim2.Init.Period = 7200-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -464,9 +463,14 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	counter = counter > 10-1 ? 0 : counter + 1;  //1 count is 10ms
-	debug_print("counter ++");
+	counter = counter > 100 - 1 ? 0 : counter + 1;  //1 count is 10ms
+	char debugPrint[10];
+	//		int x = ntc1.temp[1];
+	itoa(counter, debugPrint, 10);
+	debug_print( debugPrint);
 	if (counter == 0) {
+		rundone = 1; //runreset;
+		debug_print("Counter Reset");
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	}
 }
