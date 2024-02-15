@@ -27,9 +27,15 @@ typedef struct {
 	float temp[3];
 	int resistor[3];
 
+	//pid
+	double Input, Output, Setpoint;
+	double errSum, lastErr;
+	double kp, ki, kd;
+	uint8_t timeChange;
 } Heater_TypeDef;
 
-void heaterInit();
-void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
+void heaterInit(Heater_TypeDef *pid, double Kp, double Ki, double Kd, uint8_t TimeChange);
+void Compute(Heater_TypeDef *pid);
+void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, int i);
 
 #endif /* INC_HEATER_H_ */

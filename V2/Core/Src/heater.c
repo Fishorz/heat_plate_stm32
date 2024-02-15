@@ -13,14 +13,32 @@ uint16_t setpoint = SETPOINT;
 //extern ADC_HandleTypeDef hadc1;
 //ADC_ChannelConfTypeDef heaterADC;
 
-void heaterInit(PIDController *pid) {
-	PIDController_Init(pid);
-}
-
-void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i) {
+void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, int i) {
 	/* Compute new control signal */
 	calTemp(hadc, uNTC);
 	float temp = 0;
 	temp = uNTC->temp[i];
-	PIDController_Update(pid, setpoint, temp);
+}
+
+void heaterInit(Heater_TypeDef *pid, double Kp, double Ki, double Kd,
+		uint8_t TimeChange) {
+	pid->kp = Kp;
+	pid->ki = Ki;
+	pid->kd = Kd;
+	pid->timeChange = TimeChange;
+}
+
+void Compute(Heater_TypeDef *pid) {
+	/*How long since we last calculated*/
+
+	/*Compute all the working error variables*/
+	double error = pid->Setpoint - pid->Input;
+	pid->errSum += (error * pid->timeChange);
+	double dErr = (error - pid->lastErr) / pid->timeChange;
+
+	/*Compute PID Output*/
+	pid->Output = pid->kp * error + pid->ki * pid->errSum + pid->kd * dErr;
+
+	/*Remember some variables for next time*/
+	pid->lastErr = error;
 }
