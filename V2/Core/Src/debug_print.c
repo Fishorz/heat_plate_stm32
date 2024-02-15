@@ -26,8 +26,22 @@ void debug_print(char msg[]) {
 		printf("/n/r");
 	}
 }
+
+//void debug_print(int msg) {
+//	if (DEBUG_PRINT == 1) {
+//		printf(msg);
+//		printf("/n/r");
+//	}
+//}
+
 void debug_println(char msg[]){
 	if (DEBUG_PRINT == 1) {
 		printf(msg);
 	}
 }
+
+//void debug_println(int msg) {
+//	if (DEBUG_PRINT == 1) {
+//		printf(msg);;
+//	}
+//}

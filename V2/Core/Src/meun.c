@@ -53,6 +53,7 @@
  */
 #include <meun.h>
 #include "encoder.h"
+#include "debug_print.h"
 
 //uint8_t meunIndex = 1;
 //uint8_t previousMeunIndex = 0;
@@ -191,9 +192,11 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 	//change meun selection(pid or reflow)
 	if (encoderState() > 0 && meun->meunIndex == 0) {
 		meun->meunIndex = 1;
+		debug_print("meunIndex = 1");
 	}
 	if (encoderState() < 0 && meun->meunIndex == 1) {
 		meun->meunIndex = 0;
+		debug_print("meunIndex = 0");
 	}
 	//which meun selected
 	if (btnState() == 1 && meun->meunIndex == 0) {

@@ -26,8 +26,9 @@
 
 
 void debug_println(char msg[]);
+//void debug_println(int msg);
 void debug_print(char msg[]);
-void debug_print(int msg);
+//void debug_print(int msg);
 /*
 		char Temp[10];
 		itoa(counter, Temp, 10);
