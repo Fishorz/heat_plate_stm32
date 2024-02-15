@@ -462,7 +462,8 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	counter = counter > 400 ? 0 : counter + 1;  //1 count is 10ms
+	counter = counter > 10-1 ? 0 : counter + 1;  //1 count is 10ms
+	debug_print("counter ++");
 	if (counter == 0) {
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	}
