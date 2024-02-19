@@ -31,7 +31,7 @@ PUTCHAR_PROTOTYPE {
 void debug_print(char msg[]) {
 	if (DEBUG_PRINT == 1) {
 		printf(msg);
-		printf("\n\r");
+		printf("\r");
 	}
 }
 
