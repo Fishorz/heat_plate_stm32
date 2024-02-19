@@ -16,8 +16,10 @@
 
 typedef struct {
 	uint8_t adcValue[3];
-	float temp[3];
-	int resistor[3];
+	double temp[3];
+	double resistor[3];
+	double logR2;
+
 
 } NTC_TypeDef;
 
