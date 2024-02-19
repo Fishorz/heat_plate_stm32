@@ -8,6 +8,7 @@
 #ifndef INC_NTCTEMPSENSOR_H_
 #define INC_NTCTEMPSENSOR_H_
 #include "stm32f1xx_hal.h"
+#include <math.h>
 //#include "stm32f1xx_hal_adc.h"
 #define supplyVoltage 3.3
 #define refenceResistor 120 * 1000 //120k ohm
@@ -26,7 +27,5 @@ typedef struct {
 
 void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 		uint32_t channel);
-//void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
-//		NTC_TypeDef *uNTC);
 void calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC);
 #endif /* INC_NTCTEMPSENSOR_H_ */
