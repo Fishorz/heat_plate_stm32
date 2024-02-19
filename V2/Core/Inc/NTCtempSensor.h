@@ -10,7 +10,8 @@
 #include "stm32f1xx_hal.h"
 //#include "stm32f1xx_hal_adc.h"
 #define supplyVoltage 3.3
-#define refenceResistor 4.7 * 1000
+#define refenceResistor 120 * 1000 //120k ohm
+const float c1 = 0.7510226063e-03, c2 = 2.107052748e-04, c3 = 1.160934901e-07;
 
 //const uint32_t ADC_CHANNEL[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
 
