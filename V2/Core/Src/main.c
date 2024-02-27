@@ -118,8 +118,6 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
     debug_print("Init Start \n");
-    HAL_TIM_Base_Start_IT(&htim2);
-    debug_print("TIM init OK!! \n");
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     debug_print("GPIO init OK!! \n");
     HAL_ADC_Start_DMA(&hadc1, p_adcValue, 3);
@@ -128,6 +126,8 @@ int main(void)
 	debug_print("heaterInit OK!!");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!!");
+    HAL_TIM_Base_Start_IT(&htim2);
+    debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
   /* USER CODE END 2 */
@@ -524,10 +524,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	//	itoa(counter, debugPrint, 10);
 	//	debug_print(debugPrint);
 	printf("%d\r\n", counter);
-	if (counter == 100) {
-		rundone = 1; //runreset;
-		printf("Counter Reset \r\n");
+	if (counter % 10 == 0){
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		rundone = 1; //runreset
+		printf(" Reset rundone \r\n");
+	}
+
+	if (counter == 100) {
+//		rundone = 1; //runreset;
+		printf("Counter Reset \r\n");
+//		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	}
 }
 
