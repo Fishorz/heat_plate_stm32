@@ -149,7 +149,7 @@ int main(void)
 			fti = (int)ntc1.temp[2];
 			printf("%d\r\n", fti);
 
-			printf("Temp1 = ");
+			printf("Temp3 = ");
 			fti = (int)ntc1.temp[3];
 			printf("%d\r\n", fti);
 
