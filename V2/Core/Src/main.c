@@ -117,17 +117,17 @@ int main(void)
   MX_I2C1_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-    debug_print("Init Start \n");
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-    debug_print("GPIO init OK!! \n");
-    HAL_ADC_Start_DMA(&hadc1, p_adcValue, 3);
-    debug_print("ADC DMA init OK!! \n");
+	debug_print("Init Start \n");
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+	debug_print("GPIO init OK!! \n");
+	HAL_ADC_Start_DMA(&hadc1, p_adcValue, 3);
+	debug_print("ADC DMA init OK!! \n");
 	heaterInit(&heater1, 1, 1, 1, 200);
 	debug_print("heaterInit OK!!");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!!");
-    HAL_TIM_Base_Start_IT(&htim2);
-    debug_print("TIM init OK!! \n");
+	HAL_TIM_Base_Start_IT(&htim2);
+	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
   /* USER CODE END 2 */
@@ -136,22 +136,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
-		if (counter % (50) == 0 && rundone) {
+		if (counter % 25 == 0 && rundone) {
 			int fti;
-
-			calTemp(&hadc1, &ntc1, p_adcValue);
-
-			printf("Temp1 = ");
-			fti = (int)ntc1.temp[1];
-			printf("%d\r\n", fti);
-
-			printf("Temp2 = ");
-			fti = (int)ntc1.temp[2];
-			printf("%d\r\n", fti);
-
-			printf("Temp3 = ");
-			fti = (int)ntc1.temp[3];
-			printf("%d\r\n", fti);
+			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
+			for (int i = 0; i < (sizeof(p_adcValue[0]) - 1); i++) {
+				printf("%d\r\n", i);
+				calTemp(&hadc1, &ntc1, p_adcValue[i]);
+				printf("Temp %d = " , i);
+				fti = (int) ntc1.temp;
+				printf("%d\r\n", fti);
+			}
 
 			rundone = 0;
 		}
@@ -390,9 +384,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 36-1;
+  htim3.Init.Prescaler = 100-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 100-1;
+  htim3.Init.Period = 30000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -524,7 +518,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	//	itoa(counter, debugPrint, 10);
 	//	debug_print(debugPrint);
 	printf("%d\r\n", counter);
-	if (counter % 10 == 0){
+	if (counter % 10 == 0) {
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		rundone = 1; //runreset
 		printf(" Reset rundone \r\n");
