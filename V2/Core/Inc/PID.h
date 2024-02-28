@@ -43,7 +43,7 @@ typedef struct {
 
 } PIDController;
 
-void  PIDController_Init(PIDController *pid);
+void  PIDController_Init(PIDController *pid , float _kp, float _ki, float _kd);
 float PIDController_Update(PIDController *pid, float setpoint, float measurement);
 
 #endif

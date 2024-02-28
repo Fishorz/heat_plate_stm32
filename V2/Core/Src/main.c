@@ -36,6 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define NUMBER_OF_HEATER 3
 uint16_t counter = 0;
 uint8_t rundone = 1;
 /* USER CODE END PD */
@@ -59,8 +60,11 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
 Heater_TypeDef heater1;
-NTC_TypeDef ntc1;
-uint32_t p_adcValue[3];
+NTC_TypeDef ntc0;
+PIDController pidx[3];
+//int list[] = {1, 2, 3};
+//PIDController pidx[] = {pid0, pid1, pid2};
+
 
 /* USER CODE END PV */
 
@@ -79,6 +83,16 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+double setTemp = 0.0;
+double currentTemp[NUMBER_OF_HEATER];
+uint32_t p_adcValue[NUMBER_OF_HEATER];
+uint32_t CCR[3];
+
+float pid_limMin = 100.0;
+float pid_limMax = 100.0;
+float pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+float pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+float pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
 
 /* USER CODE END 0 */
 
@@ -123,12 +137,21 @@ int main(void)
 	HAL_ADC_Start_DMA(&hadc1, p_adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
 	heaterInit(&heater1, 1, 1, 1, 200);
-	debug_print("heaterInit OK!!");
+	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
-	debug_print("meunInit OK!!");
+	debug_print("meunInit OK!! \n");
+	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+		PIDController_Init(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
+	}
+	debug_print("PID init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
+
+	__IO uint32_t *ccr[3];
+	ccr[0] = &(TIM3->CCR1);
+	ccr[1] = &(TIM3->CCR2);
+	ccr[2] = &(TIM3->CCR3);
 
   /* USER CODE END 2 */
 
@@ -138,13 +161,31 @@ int main(void)
 
 		if (counter % 25 == 0 && rundone) {
 			int fti;
+			float PID_OutPutValue;
 			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
 			for (int i = 0; i < (sizeof(p_adcValue[0]) - 1); i++) {
 				printf("%d\r\n", i);
-				calTemp(&hadc1, &ntc1, p_adcValue[i]);
+				calTemp(&hadc1, &ntc0, p_adcValue[i]);
 				printf("Temp %d = " , i);
-				fti = (int) ntc1.temp;
+				currentTemp[i] = ntc0.temp;
+				fti = (int) ntc0.temp;
 				printf("%d\r\n", fti);
+				PID_OutPutValue = PIDController_Update(&pidx[i], setTemp, currentTemp[i]);
+
+				ccr[i] = (__IO uint32_t) ((int) PID_OutPutValue);
+//				switch(i){
+//				case 1:
+//				TIM3->CCR1 = PID_OutPutValue;
+//				break;
+//				case 2:
+//				TIM3->CCR2 = PID_OutPutValue;
+//				break;
+//				case 3:
+//				TIM3->CCR3 = PID_OutPutValue;
+//				break;
+//				default:
+//				break;
+//				}
 			}
 
 			rundone = 0;
@@ -388,7 +429,7 @@ static void MX_TIM3_Init(void)
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 30000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();

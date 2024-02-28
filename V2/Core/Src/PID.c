@@ -7,7 +7,7 @@
 
 #include "PID.h"
 
-void PIDController_Init(PIDController *pid) {
+void PIDController_Init(PIDController *pid, float _kp, float _ki, float _kd) {
 
 	/* Clear controller variables */
 	pid->integrator = 0.0f;
