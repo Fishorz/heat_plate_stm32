@@ -14,7 +14,7 @@ void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 
 //void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 //		NTC_TypeDef *uNTC) {
-void calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
+float calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 	uNTC->adcValue = inoputAdcValue;
 	printf("run cal temp \r\n");
 
@@ -31,4 +31,5 @@ void calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue
 	fti = (uint32_t) uNTC->temp;
 //				fti = (int) temp[i];
 	printf("run cal temp done!!\r\n");
+	return uNTC->temp;
 }

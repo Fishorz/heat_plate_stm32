@@ -26,5 +26,5 @@ typedef struct {
 
 void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 		uint32_t channel);
-void calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue);
+float calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue);
 #endif /* INC_NTCTEMPSENSOR_H_ */
