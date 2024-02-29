@@ -61,7 +61,7 @@ UART_HandleTypeDef huart1;
 MEUN_TypeDef userMeun;
 Heater_TypeDef heater1;
 NTC_TypeDef ntc0;
-PIDController pidx[3];
+PID_TypeDef pidx[3];
 //int list[] = {1, 2, 3};
 //PIDController pidx[] = {pid0, pid1, pid2};
 
@@ -84,7 +84,9 @@ static void MX_ADC1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 double setTemp = 0.0;
+
 double currentTemp[NUMBER_OF_HEATER];
+double PIDOut[NUMBER_OF_HEATER];
 uint32_t p_adcValue[NUMBER_OF_HEATER];
 uint32_t CCR[3];
 
@@ -141,8 +143,11 @@ int main(void)
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
 	for(int i = 0; i<NUMBER_OF_HEATER; i++){
-		PIDController_Init(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
-		&pidx[i]->
+		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
+
+		  PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
+		  PID_SetSampleTime(&pidx[i], 500);
+		  PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -166,12 +171,10 @@ int main(void)
 			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
 			for (int i = 0; i < (sizeof(p_adcValue[0]) - 1); i++) {
 				printf("%d\r\n", i);
-				calTemp(&hadc1, &ntc0, p_adcValue[i]);
+				currentTemp[i] = calTemp(&hadc1, &ntc0, p_adcValue[i]);
 				printf("Temp %d = " , i);
-				currentTemp[i] = ntc0.temp;
-				fti = (int) ntc0.temp;
+				fti = (int) currentTemp[i];
 				printf("%d\r\n", fti);
-				PID_OutPutValue = PIDController_Update(&pidx[i], setTemp, currentTemp[i]);
 
 				ccr[i] = (__IO uint32_t) ((int) PID_OutPutValue);
 //				switch(i){
