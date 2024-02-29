@@ -11,6 +11,10 @@
 #ifndef PID_CONTROLLER_H
 #define PID_CONTROLLER_H
 
+#include "stm32f1xx_hal.h"
+
+#define GetTime() HAL_GetTick()
+
 typedef struct {
 
 	/* Controller gains */
@@ -30,7 +34,8 @@ typedef struct {
 	float limMaxInt;
 
 	/* Sample time (in seconds) */
-	float T;
+	uint32_t    LastTime;
+	uint32_t    SampleTime;
 
 	/* Controller "memory" */
 	float integrator;

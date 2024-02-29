@@ -88,11 +88,11 @@ double currentTemp[NUMBER_OF_HEATER];
 uint32_t p_adcValue[NUMBER_OF_HEATER];
 uint32_t CCR[3];
 
-float pid_limMin = 100.0;
-float pid_limMax = 100.0;
-float pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-float pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-float pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const float pid_limMin = 0.0;
+const float pid_limMax = 100.0;
+const float pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const float pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const float pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
 
 /* USER CODE END 0 */
 
@@ -142,16 +142,17 @@ int main(void)
 	debug_print("meunInit OK!! \n");
 	for(int i = 0; i<NUMBER_OF_HEATER; i++){
 		PIDController_Init(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
+		&pidx[i]->
 	}
 	debug_print("PID init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
-	__IO uint32_t *ccr[3];
-	ccr[0] = &(TIM3->CCR1);
-	ccr[1] = &(TIM3->CCR2);
-	ccr[2] = &(TIM3->CCR3);
+	__IO uint32_t *ccr[3] = {TIM3->CCR1, TIM3->CCR2, TIM3->CCR3};
+//	ccr[0] = &(TIM3->CCR1);
+//	ccr[1] = &(TIM3->CCR2);
+//	ccr[2] = &(TIM3->CCR3);
 
   /* USER CODE END 2 */
 

@@ -26,7 +26,7 @@ float PIDController_Update(PIDController *pid, float setpoint, float measurement
 	* Error signal
 	*/
     float error = setpoint - measurement;
-
+    uint32_t now = GetTime();
 
 	/*
 	* Proportional
