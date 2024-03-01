@@ -176,13 +176,6 @@ int main(void)
 			for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
 //				printf("%d\r\n", i);
 				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
-				uint8_t simple = 5;
-				uint32_t simpleArray[simple];
-				for (int j = 0; j < simple; j++) {
-									simpleArray[j] = adcValue[i];
-									printf("simpleArray %d = ", i); //temp1 temp2 temp3
-									printf("%lu\r\n", simpleArray[j]);
-								}
 //				fti = (uint32_t) (adcValue[i]);
 				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
 				fti = (int) (currentTemp[i] * 100.0);
