@@ -7,7 +7,7 @@
 
 #ifndef INC_DEBUG_PRINT_H_
 #define INC_DEBUG_PRINT_H_
-#define DEBUG_PRINT 0
+#define DEBUG_PRINT 1
 
 #include "stdio.h"
 #include "stdlib.h"

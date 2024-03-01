@@ -24,8 +24,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "meun.h"
+//#include "heater.h"
 #include "NTCtempSensor.h"
-#include "pid.h"
+//#include "NTCtempSensor.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
 
@@ -61,8 +62,9 @@ UART_HandleTypeDef huart1;
 MEUN_TypeDef userMeun;
 //Heater_TypeDef heater1;
 NTC_TypeDef ntc0;
-PID_TypeDef pidx[3];
-
+//PID_TypeDef pidx[3];
+//int list[] = {1, 2, 3};
+//PIDController pidx[] = {pid0, pid1, pid2};
 
 
 /* USER CODE END PV */
@@ -82,16 +84,16 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-double setTemp = 50.0;
+double setTemp = 35.0;
 
 double currentTemp[NUMBER_OF_HEATER];
 double PIDOut[NUMBER_OF_HEATER];
 uint32_t adcValue[3];
 uint32_t CCR[3];
 
-const double pid_limMin = 0.0;
-const double pid_limMax = 100.0;
-const double pid_Kp[NUMBER_OF_HEATER] = {10.0, 10.0, 10.0};
+const float pid_limMin = 0.0;
+const float pid_limMax = 100.0;
+const double pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
 const double pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
 const double pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
 uint8_t PID_OutPutValue[NUMBER_OF_HEATER];
@@ -140,17 +142,15 @@ int main(void)
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
-///*
-	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+/*	for(int i = 0; i<NUMBER_OF_HEATER; i++){
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
 		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, pid_Kp[i], pid_Ki[i], pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
 		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
-		PID_SetSampleTime(&pidx[i], 100);
-		PID_SetOutputLimits(&pidx[i], pid_limMin, pid_limMax);
-
+		PID_SetSampleTime(&pidx[i], 500);
+		PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
-//	*/
+	*/
 
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
@@ -176,19 +176,20 @@ int main(void)
 			for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
 //				printf("%d\r\n", i);
 				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
-//				uint8_t simple = 5;
-//				uint32_t simpleArray[simple];
-//				for (int j = 0; j < simple; j++) {
-//									simpleArray[j] = adcValue[i];
-//									printf("simpleArray %d = ", i); //temp1 temp2 temp3
-//									printf("%lu\r\n", simpleArray[j]);
-//								}
-//				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
+				uint8_t simple = 5;
+				uint32_t simpleArray[simple];
+				for (int j = 0; j < simple; j++) {
+									simpleArray[j] = adcValue[i];
+									printf("simpleArray %d = ", i); //temp1 temp2 temp3
+									printf("%lu\r\n", simpleArray[j]);
+								}
+//				fti = (uint32_t) (adcValue[i]);
+				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
 				fti = (int) (currentTemp[i] * 100.0);
 				printf("Temp %d = %d \r\n", i, fti);
 
-				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
-				printf("PID_OutPut %d = %d \r \n\n " ,i ,PID_OutPutValue[i]);
+//				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
+				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
 			//ser duty cycle
@@ -200,9 +201,9 @@ int main(void)
 		}
 //		selectMeunHandler(&userMeun);
 
-		if (counter % 12 == 0) {
-//			printf("update meun \n\r");
-			displayMeunHandler(&userMeun);
+		if (counter % 14 == 0) {
+//			debug_print("update meun \n\r");
+//			displayMeunHandler(&userMeun);
 		}
 
 		if (counter % 11 == 0) {
@@ -388,11 +389,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 720-1;
-//  htim2.Init.Prescaler = 180-1;
+//  htim2.Init.Prescaler = 720-1;
+  htim2.Init.Prescaler = 180-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 15000-1;
-//  htim2.Init.Period = 10000-1;
+//  htim2.Init.Period = 15000-1;
+  htim2.Init.Period = 10000-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -574,7 +575,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if (counter % 5 == 0) {
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 			rundone = 1; //runreset
-			userMeun.meunUpdateState = 0 ;
 			printf(" Reset rundone \r\n");
 	}
 
