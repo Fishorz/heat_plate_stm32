@@ -39,7 +39,7 @@
 /* USER CODE BEGIN PD */
 #define NUMBER_OF_HEATER 3
 uint16_t counter = 0;
-uint32_t pid_counter;
+uint32_t pid_counter = 0;
 uint8_t rundone = 1;
 /* USER CODE END PD */
 
@@ -67,18 +67,17 @@ NTC_TypeDef ntc0;
 //int list[] = {1, 2, 3};
 //PIDController pidx[] = {pid0, pid1, pid2};
 
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -94,9 +93,9 @@ uint32_t CCR[3];
 
 const float pid_limMin = 0.0;
 const float pid_limMax = 100.0;
-const double pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const double pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const double pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const double pid_Kp[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
+const double pid_Ki[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
+const double pid_Kd[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
 uint8_t PID_OutPutValue[NUMBER_OF_HEATER];
 
 /* USER CODE END 0 */
@@ -143,19 +142,18 @@ int main(void)
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
-	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+	for (int i = 0; i < NUMBER_OF_HEATER; i++) {
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		setPidFactor(&pidx[i],pid_Kp[i], pid_Ki[i], pid_Kd[i]);
+		setPidFactor(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
 //		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
 //		PID_SetSampleTime(&pidx[i], 500);
 //		PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
-
-
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim3);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
@@ -178,17 +176,19 @@ int main(void)
 //				printf("%d\r\n", i);
 				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
 //				fti = (uint32_t) (adcValue[i]);
-				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
+				printf("adc %d = %lu \r\n", i, ((uint32_t) adcValue[i]));
 				fti = (int) (currentTemp[i] * 100.0);
 				printf("Temp %d = %d \r\n", i, fti);
-
-				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
+//				PID_OutPutValue[i] = (uint8_t)PIDcalculate(&pidx[i], 40.0, currentTemp[i]);
+				PID_OutPutValue[i] = PIDcalculate(&pidx[i], 40.0,
+						currentTemp[i]);
+				printf("PID_OutPut %d = %d \r\n ", i, PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
 			//ser duty cycle
-			TIM3->CCR1 = (PID_OutPutValue[1]/256.0) * 30000;
-			TIM3->CCR2 = (PID_OutPutValue[2]/256.0) * 30000;
-			TIM3->CCR3 = (PID_OutPutValue[3]/256.0) * 30000;
+			TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
+			TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
+			TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
 
 			rundone = 0;
 		}
@@ -382,11 +382,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-//  htim2.Init.Prescaler = 720-1;
-  htim2.Init.Prescaler = 180-1;
+  htim2.Init.Prescaler = 720-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-//  htim2.Init.Period = 15000-1;
-  htim2.Init.Period = 10000-1;
+  htim2.Init.Period = 15000-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -422,6 +420,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -431,9 +430,18 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 100-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 30000-1;
+  htim3.Init.Period = 720-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -557,26 +565,29 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  //1 count is 10ms
+	//1 count is 10ms
 	//	char debugPrint[10];
 	//	int x = ntc1.temp[1];
 	//	itoa(counter, debugPrint, 10);
 	//	debug_print(debugPrint);
 //	printf("%d\r\n", counter);---
-	if(htim->Instance==TIM2){
+	if (htim->Instance == TIM2) {
 		pid_counter++;
 		counter = counter > 100 ? 1 : counter + 1;
 		if (counter % 5 == 0) {
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 			rundone = 1; //runreset
 			printf(" Reset rundone \r\n");
-	}
+		}
 
 		if (counter == 100) {
 //			rundone = 1; //runreset;
 			printf("Counter Reset \r\n");
 //			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		}
 	}
+	if(htim->Instance==TIM3){
+		pid_counter++;
 	}
 }
 
