@@ -26,7 +26,7 @@
 #include "meun.h"
 //#include "heater.h"
 #include "NTCtempSensor.h"
-//#include "NTCtempSensor.h"
+#include "pid.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
 
@@ -39,6 +39,7 @@
 /* USER CODE BEGIN PD */
 #define NUMBER_OF_HEATER 3
 uint16_t counter = 0;
+uint32_t pid_counter;
 uint8_t rundone = 1;
 /* USER CODE END PD */
 
@@ -60,9 +61,9 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
-//Heater_TypeDef heater1;
+PID_TypeDef pidx[3];
 NTC_TypeDef ntc0;
-//PID_TypeDef pidx[3];
+
 //int list[] = {1, 2, 3};
 //PIDController pidx[] = {pid0, pid1, pid2};
 
@@ -142,15 +143,15 @@ int main(void)
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
-/*	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+	for(int i = 0; i<NUMBER_OF_HEATER; i++){
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, pid_Kp[i], pid_Ki[i], pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
-		PID_SetSampleTime(&pidx[i], 500);
-		PID_SetOutputLimits(&pidx[i], -100, 100);
+		setPidFactor(&pidx[i],pid_Kp[i], pid_Ki[i], pid_Kd[i]);
+//		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
+//		PID_SetSampleTime(&pidx[i], 500);
+//		PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
-	*/
+
 
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
@@ -181,7 +182,6 @@ int main(void)
 				fti = (int) (currentTemp[i] * 100.0);
 				printf("Temp %d = %d \r\n", i, fti);
 
-//				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
 				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
@@ -564,6 +564,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	//	debug_print(debugPrint);
 //	printf("%d\r\n", counter);---
 	if(htim->Instance==TIM2){
+		pid_counter++;
 		counter = counter > 100 ? 1 : counter + 1;
 		if (counter % 5 == 0) {
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
