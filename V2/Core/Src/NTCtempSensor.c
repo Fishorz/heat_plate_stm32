@@ -14,13 +14,13 @@ void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 
 //void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 //		NTC_TypeDef *uNTC) {
-float calTemp(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
-	uNTC->adcValue = inoputAdcValue;
+float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
+	uNTC->_NTC_adcvalue = inoputAdcValue;
 	printf("run cal temp \r\n");
 
 	//cal resistor
 	float voltage = 0.0;
-	voltage = (uNTC->adcValue / 4096.0) * 3.3;
+	voltage = (uNTC->_NTC_adcvalue / 4096.0) * 3.3;
 	uNTC->resistor = (refenceResistor * 1.0 * voltage)
 			/ (supplyVoltage * 1.0 - (voltage));
 	uNTC->logR2 = log(uNTC->resistor);

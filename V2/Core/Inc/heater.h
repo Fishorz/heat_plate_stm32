@@ -36,6 +36,6 @@ typedef struct {
 
 void heaterInit(Heater_TypeDef *pid, double Kp, double Ki, double Kd, uint8_t TimeChange);
 void Compute(Heater_TypeDef *pid);
-void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, int i,uint32_t inoputAdcValue[3]);
+void heating( NTC_TypeDef *uNTC, int i,uint32_t inoputAdcValue[3]);
 
 #endif /* INC_HEATER_H_ */

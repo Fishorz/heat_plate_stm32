@@ -72,11 +72,11 @@ PID_TypeDef pidx[3];
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_ADC1_Init(void);
+static void MX_I2C1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
-static void MX_USART1_UART_Init(void);
-static void MX_I2C1_Init(void);
-static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -131,26 +131,28 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_I2C1_Init();
   MX_ADC1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 	debug_print("Init Start \n");
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 	debug_print("GPIO init OK!! \n");
-	HAL_ADC_Start_DMA(&hadc1, p_adcValue, 3);
-	debug_print("ADC DMA init OK!! \n");
 	heaterInit(&heater1, 1, 1, 1, 200);
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
-	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+/*	for(int i = 0; i<NUMBER_OF_HEATER; i++){
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
 		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, pid_Kp[i], pid_Ki[i], pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		  PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
-		  PID_SetSampleTime(&pidx[i], 500);
-		  PID_SetOutputLimits(&pidx[i], -100, 100);
+		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
+		PID_SetSampleTime(&pidx[i], 500);
+		PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
+	*/
+
+	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
+	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
@@ -261,7 +263,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -386,9 +388,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 1000-1;
+  htim2.Init.Prescaler = 720-1;
+//  htim2.Init.Prescaler = 180-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 7200-1;
+  htim2.Init.Period = 15000-1;
+//  htim2.Init.Period = 10000-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -433,7 +437,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 100-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000-1;
+  htim3.Init.Period = 30000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -564,8 +568,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	//	int x = ntc1.temp[1];
 	//	itoa(counter, debugPrint, 10);
 	//	debug_print(debugPrint);
-	printf("%d\r\n", counter);
-	if (counter % 10 == 0) {
+//	printf("%d\r\n", counter);---
+	if (counter % 5 == 0) {
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		rundone = 1; //runreset
 		printf(" Reset rundone \r\n");
