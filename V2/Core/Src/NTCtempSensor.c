@@ -26,9 +26,9 @@ float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 	uNTC->logR2 = log(uNTC->resistor);
 	uNTC->temp = (1.0 / (c1 + c2 * uNTC->logR2 + c3 * uNTC->logR2 * uNTC->logR2 * uNTC->logR2));
 
-	uint32_t fti; //double to int
-//				logR2 = logR2 *10000;
-	fti = (uint32_t) uNTC->temp;
+//	uint32_t fti; //double to int
+////				logR2 = logR2 *10000;
+//	fti = (uint32_t) uNTC->temp;
 //				fti = (int) temp[i];
 	printf("run cal temp done!!\r\n");
 	return uNTC->temp;
