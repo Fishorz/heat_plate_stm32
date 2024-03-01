@@ -83,7 +83,7 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-double setTemp = 0.0;
+double setTemp = 35.0;
 
 double currentTemp[NUMBER_OF_HEATER];
 double PIDOut[NUMBER_OF_HEATER];
@@ -92,9 +92,10 @@ uint32_t CCR[3];
 
 const float pid_limMin = 0.0;
 const float pid_limMax = 100.0;
-const float pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const float pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const float pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const double pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const double pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const double pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+uint8_t PID_OutPutValue[NUMBER_OF_HEATER];
 
 /* USER CODE END 0 */
 
@@ -143,8 +144,8 @@ int main(void)
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
 	for(int i = 0; i<NUMBER_OF_HEATER; i++){
-		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-
+//		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
+		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, pid_Kp[i], pid_Ki[i], pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
 		  PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
 		  PID_SetSampleTime(&pidx[i], 500);
 		  PID_SetOutputLimits(&pidx[i], -100, 100);
@@ -154,7 +155,7 @@ int main(void)
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
-	__IO uint32_t *ccr[3] = {TIM3->CCR1, TIM3->CCR2, TIM3->CCR3};
+//	__IO uint32_t *ccr[3] = {TIM3->CCR1, TIM3->CCR2, TIM3->CCR3};
 //	ccr[0] = &(TIM3->CCR1);
 //	ccr[1] = &(TIM3->CCR2);
 //	ccr[2] = &(TIM3->CCR3);
@@ -167,30 +168,23 @@ int main(void)
 
 		if (counter % 25 == 0 && rundone) {
 			int fti;
-			float PID_OutPutValue;
-			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
+
+//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
 			for (int i = 0; i < (sizeof(p_adcValue[0]) - 1); i++) {
-				printf("%d\r\n", i);
+//				printf("%d\r\n", i);
 				currentTemp[i] = calTemp(&hadc1, &ntc0, p_adcValue[i]);
 				printf("Temp %d = " , i);
-				fti = (int) currentTemp[i];
+				fti = (int) (currentTemp[i] * 100.0);
 				printf("%d\r\n", fti);
 
-				ccr[i] = (__IO uint32_t) ((int) PID_OutPutValue);
-//				switch(i){
-//				case 1:
-//				TIM3->CCR1 = PID_OutPutValue;
-//				break;
-//				case 2:
-//				TIM3->CCR2 = PID_OutPutValue;
-//				break;
-//				case 3:
-//				TIM3->CCR3 = PID_OutPutValue;
-//				break;
-//				default:
-//				break;
-//				}
+				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
+				printf("PID_OutPut %d = %d \r\n " ,i , PID_OutPutValue[i]);
+//				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
+			//ser duty cycle
+			TIM3->CCR1 = (PID_OutPutValue[1]/256.0) * 30000;
+			TIM3->CCR2 = (PID_OutPutValue[2]/256.0) * 30000;
+			TIM3->CCR3 = (PID_OutPutValue[3]/256.0) * 30000;
 
 			rundone = 0;
 		}
@@ -431,7 +425,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 100-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 30000-1;
+  htim3.Init.Period = 10000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
