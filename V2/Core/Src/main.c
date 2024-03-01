@@ -166,7 +166,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
-		if (counter % 25 == 0 && rundone) {
+		if (counter % 15 == 0 && rundone) {
 			int fti;
 
 //			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
