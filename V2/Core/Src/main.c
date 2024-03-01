@@ -24,7 +24,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "meun.h"
-#include "heater.h"
+//#include "heater.h"
+#include "NTCtempSensor.h"
 //#include "NTCtempSensor.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
@@ -59,9 +60,9 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
-Heater_TypeDef heater1;
+//Heater_TypeDef heater1;
 NTC_TypeDef ntc0;
-PID_TypeDef pidx[3];
+//PID_TypeDef pidx[3];
 //int list[] = {1, 2, 3};
 //PIDController pidx[] = {pid0, pid1, pid2};
 
@@ -137,7 +138,7 @@ int main(void)
 	debug_print("Init Start \n");
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 	debug_print("GPIO init OK!! \n");
-	heaterInit(&heater1, 1, 1, 1, 200);
+//	heaterInit(&heater1, 1, 1, 1, 200);
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
@@ -187,7 +188,7 @@ int main(void)
 				fti = (int) (currentTemp[i] * 100.0);
 				printf("Temp %d = %d \r\n", i, fti);
 
-				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
+//				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
 				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
@@ -388,11 +389,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 720-1;
-//  htim2.Init.Prescaler = 180-1;
+//  htim2.Init.Prescaler = 720-1;
+  htim2.Init.Prescaler = 180-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 15000-1;
-//  htim2.Init.Period = 10000-1;
+//  htim2.Init.Period = 15000-1;
+  htim2.Init.Period = 10000-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -563,22 +564,25 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	counter = counter > 100 ? 1 : counter + 1;  //1 count is 10ms
+	  //1 count is 10ms
 	//	char debugPrint[10];
 	//	int x = ntc1.temp[1];
 	//	itoa(counter, debugPrint, 10);
 	//	debug_print(debugPrint);
 //	printf("%d\r\n", counter);---
-	if (counter % 5 == 0) {
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		rundone = 1; //runreset
-		printf(" Reset rundone \r\n");
+	if(htim->Instance==TIM2){
+		counter = counter > 100 ? 1 : counter + 1;
+		if (counter % 5 == 0) {
+			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+			rundone = 1; //runreset
+			printf(" Reset rundone \r\n");
 	}
 
-	if (counter == 100) {
-//		rundone = 1; //runreset;
-		printf("Counter Reset \r\n");
-//		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		if (counter == 100) {
+//			rundone = 1; //runreset;
+			printf("Counter Reset \r\n");
+//			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+	}
 	}
 }
 
