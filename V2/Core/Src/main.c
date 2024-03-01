@@ -87,7 +87,7 @@ double setTemp = 35.0;
 
 double currentTemp[NUMBER_OF_HEATER];
 double PIDOut[NUMBER_OF_HEATER];
-uint32_t p_adcValue[NUMBER_OF_HEATER];
+uint32_t adcValue[3];
 uint32_t CCR[3];
 
 const float pid_limMin = 0.0;
@@ -170,15 +170,23 @@ int main(void)
 			int fti;
 
 //			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
-			for (int i = 0; i < (sizeof(p_adcValue[0]) - 1); i++) {
+			for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
 //				printf("%d\r\n", i);
-				currentTemp[i] = calTemp(&hadc1, &ntc0, p_adcValue[i]);
-				printf("Temp %d = " , i);
+				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
+				uint8_t simple = 5;
+				uint32_t simpleArray[simple];
+				for (int j = 0; j < simple; j++) {
+									simpleArray[j] = adcValue[i];
+									printf("simpleArray %d = ", i); //temp1 temp2 temp3
+									printf("%lu\r\n", simpleArray[j]);
+								}
+//				fti = (uint32_t) (adcValue[i]);
+				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
 				fti = (int) (currentTemp[i] * 100.0);
-				printf("%d\r\n", fti);
+				printf("Temp %d = %d \r\n", i, fti);
 
 				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
-				printf("PID_OutPut %d = %d \r\n " ,i , PID_OutPutValue[i]);
+				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
 			//ser duty cycle
