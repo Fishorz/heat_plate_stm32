@@ -46,7 +46,7 @@
 #define LCD_NOBACKLIGHT 0x00
 
 /* Enable Bit */
-#define ENABLE 0x04
+#define ENABLE_LCD 0x04
 
 /* Read Write Bit */
 #define RW 0x0

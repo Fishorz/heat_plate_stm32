@@ -214,10 +214,10 @@ static void ExpanderWrite(uint8_t _data) {
 }
 
 static void PulseEnable(uint8_t _data) {
-	ExpanderWrite(_data | ENABLE);
+	ExpanderWrite(_data | ENABLE_LCD);
 	DelayUS(20);
 
-	ExpanderWrite(_data & ~ENABLE);
+	ExpanderWrite(_data & ~ENABLE_LCD);
 	DelayUS(20);
 }
 
