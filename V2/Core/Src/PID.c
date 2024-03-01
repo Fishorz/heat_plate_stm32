@@ -43,6 +43,8 @@ void setPidFactor(PID_TypeDef *factor, double _kP,double _kI,double _kD){
 
 /* ~~~~~~~~~~~~~~~~~ Calculate Function ~~~~~~~~~~~~~~~~ */
 double PIDcalculate(PID_TypeDef *pid, double ambTemp, double currentTemp){
+	//for test setpoint
+	pid->setPoint = ambTemp;
 	pid->tempRead =currentTemp;
 	pid->error = pid->setPoint - pid->tempRead;
     // Proportional
@@ -53,12 +55,13 @@ double PIDcalculate(PID_TypeDef *pid, double ambTemp, double currentTemp){
 	    // Anti-wind-up
 	    pid->iTerm = constrain(pid->iTerm, 0, 100);
 	    // Derivative
-	    pid->dTerm = (pid->error - pid->lastError) / pid_counter;
+	    pid->dTerm = (pid->error - pid->lastError) / pid_counter * 0.001; //ms
 	    // Calculate PID
 	    pid->PID_value = pid->kP * pid->pTerm + pid->kI * pid->iTerm + pid->kD * pid->dTerm;
 	    // Deadband
 //	    PID_value = constrain(PID_value, 0, 255);
 	    pid->lastError = pid->error;
+	    printf("pid_counter= %lu\r\n", pid_counter);
 	    pid_counter = 0;
 	    return pid->PID_value;
 }
