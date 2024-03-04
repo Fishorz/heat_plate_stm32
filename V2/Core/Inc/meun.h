@@ -36,7 +36,7 @@ void reflowSoldering_select();
 void _PID_Auto_Tuning_select();
 void _PID_Auto_Tuning_wait();
 void _PID_Auto_Tuning_fail();
-void reflow_Soliding_process(MEUN_TypeDef *meun);
+void reflow_Soldering_process(MEUN_TypeDef *meun);
 void displayMeunHandler(MEUN_TypeDef *meun);
 void selectMeunHandler(MEUN_TypeDef *meun);
 
