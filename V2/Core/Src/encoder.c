@@ -43,8 +43,8 @@ uint8_t _lastBtnState = 0;
 uint8_t _btnState = 0;
 
 void calculatEncoder() {
-	pinA = GPIOB->IDR & GPIO_PIN_7;
-	pinB = GPIOB->IDR & GPIO_PIN_6;
+	pinA = (GPIOB->IDR & GPIO_PIN_7)>0;
+	pinB = (GPIOB->IDR & GPIO_PIN_6)>0;
 
 	state <<= 2; // if state = 0b0010 to 0b1000
 	state |= (pinA << 1) | pinB; // previous state 0b1000 to 0b1011 (if a and b is 1)
@@ -67,7 +67,7 @@ void calculatEncoder() {
 
 int btnState() {
 	int _return = 0;
-	_btnState = GPIOB->IDR & GPIO_PIN_5;
+	_btnState = (GPIOB->IDR & GPIO_PIN_5)>0;
 	if (_btnState == 1 && _lastBtnState == 0) {
 		_return = 1;
 	} else {
