@@ -65,7 +65,7 @@ extern uint8_t counter;
 void meunInit(MEUN_TypeDef *meun){
 	meun->meunIndex = 0;
 	meun->previousMeunIndex = 0;
-	meun->meunUpdateState = 0;
+	meun->meunNeedUpdate = 1;
 	HD44780_Init(2);
 }
 
@@ -145,7 +145,7 @@ void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("step:");
 	HD44780_PrintStr(&(meun->status));
-	HD44780_SetCursor(8, 0); //Time:
+	HD44780_SetCursor(8, 0); //Time from start soldering
 	HD44780_PrintStr("Time:");
 	itoa(meun->heatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
@@ -201,17 +201,21 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 	int8_t temp = encoderState();
 	if (temp > 0 && meun->meunIndex == 0) {
 		meun->meunIndex = 1;
+		meun->meunNeedUpdate = 1;
 		debug_print("meunIndex = 1");
 	}
 	if (temp < 0 && meun->meunIndex == 1) {
 		meun->meunIndex = 0;
+		meun->meunNeedUpdate = 1;
 		debug_print("meunIndex = 0");
 	}
 	//which meun selected
 	if (btnState() == 1 && meun->meunIndex == 0) {
 		reflow_Soldering_process(meun);
+		meun->meunNeedUpdate = 1;
 	}
 	if (btnState() == 1 && meun->meunIndex == 1) {
 		_PID_Auto_Tuning_wait();
+		meun->meunNeedUpdate = 1;
 	}
 }
