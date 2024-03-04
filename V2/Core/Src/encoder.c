@@ -38,7 +38,7 @@
 uint8_t pinA = 0;
 uint8_t pinB = 0;
 uint8_t state = 0;
-uint8_t encoderCounter = 0;
+int8_t encoderCounter = 0;
 uint8_t _lastBtnState = 0;
 uint8_t _btnState = 0;
 
