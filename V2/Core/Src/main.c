@@ -180,8 +180,9 @@ int main(void)
 				fti = (int) (currentTemp[i] * 100.0);
 				printf("Temp %d = %d \r\n", i, fti);
 //				PID_OutPutValue[i] = (uint8_t)PIDcalculate(&pidx[i], 40.0, currentTemp[i]);
-				PID_OutPutValue[i] = PIDcalculate(&pidx[i], 40.0,
-						currentTemp[i]);
+				PID_OutPutValue[i] = PIDcalculate(&pidx[i],
+										40.0,
+										currentTemp[i]);
 				printf("PID_OutPut %d = %d \r\n ", i, PID_OutPutValue[i]);
 //				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
 			}
@@ -194,9 +195,9 @@ int main(void)
 		}
 //		selectMeunHandler(&userMeun);
 
-		if (counter % 14 == 0) {
-//			debug_print("update meun \n\r");
-//			displayMeunHandler(&userMeun);
+		if (counter % 12 == 0 && rundone) {
+			debug_print("update meun \n\r");
+			displayMeunHandler(&userMeun);
 		}
 
 		if (counter % 11 == 0) {
