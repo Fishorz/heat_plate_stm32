@@ -7,25 +7,27 @@
 #include "stdlib.h"
 #include "encoder.h"
 
-enum display{
-	ReflowSoldering_select,
-	PID_Auto_Tuning_select,
-	PID_Auto_Tuning_wait,
-	PID_Auto_Tuning_OK,
-	PID_Auto_Tuning_fail,
-	Reflow_Soliding_process
-};
+
 
 typedef struct  {   // Structure declaration
-
 	uint8_t meunIndex;
 	uint8_t previousMeunIndex;
-	uint8_t meunUpdateState;
+	uint8_t meunNeedUpdate;
 
 	uint8_t nowTemp;
 	uint8_t targetTemp;
 	uint8_t heatTime;
 	char status;
+
+	enum display{
+		ReflowSoldering_select,
+		PID_Auto_Tuning_select,
+		PID_Auto_Tuning_wait,
+		PID_Auto_Tuning_OK,
+		PID_Auto_Tuning_fail,
+		Reflow_Soliding_process
+	};
+
 }MEUN_TypeDef;
 
 void meunInit(MEUN_TypeDef *meun);
