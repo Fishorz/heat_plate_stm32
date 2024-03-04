@@ -139,7 +139,7 @@ void _PID_Auto_Tuning_fail() {
  *|N_T:XXX S_T:XXX |
  *------------------
  */
-void reflow_Soliding_process(MEUN_TypeDef *meun) {
+void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
@@ -209,7 +209,7 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 	}
 	//which meun selected
 	if (btnState() == 1 && meun->meunIndex == 0) {
-		reflow_Soliding_process(meun);
+		reflow_Soldering_process(meun);
 	}
 	if (btnState() == 1 && meun->meunIndex == 1) {
 		_PID_Auto_Tuning_wait();
