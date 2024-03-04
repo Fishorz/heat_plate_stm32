@@ -198,11 +198,12 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 //	int _encoderState_ = 0;
 //	_encoderState_ = encoderState();
 	//change meun selection(pid or reflow)
-	if (encoderState() > 0 && meun->meunIndex == 0) {
+	int8_t temp = encoderState();
+	if (temp > 0 && meun->meunIndex == 0) {
 		meun->meunIndex = 1;
 		debug_print("meunIndex = 1");
 	}
-	if (encoderState() < 0 && meun->meunIndex == 1) {
+	if (temp < 0 && meun->meunIndex == 1) {
 		meun->meunIndex = 0;
 		debug_print("meunIndex = 0");
 	}
