@@ -167,36 +167,36 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+		selectMeunHandler(&userMeun);
+		if (counter % 5 == 0 && rundone) {
+			if(&userMeun.meunIndex == Reflow_Soliding_process){
+				int fti;
+	//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
+				for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
+	//				printf("%d\r\n", i);
+					currentTemp[i] = calTemp(&ntc0, adcValue[i]);
+	//				fti = (uint32_t) (adcValue[i]);
+					printf("adc %d = %lu \r\n", i, ((uint32_t) adcValue[i]));
+					fti = (int) (currentTemp[i] * 100.0);
+					printf("Temp %d = %d \r\n", i, fti);
+	//				PID_OutPutValue[i] = (uint8_t)PIDcalculate(&pidx[i], 40.0, currentTemp[i]);
+					PID_OutPutValue[i] = PIDcalculate(&pidx[i],
+											40.0,
+											currentTemp[i]);
+					printf("PID_OutPut %d = %d \r\n ", i, PID_OutPutValue[i]);
+	//				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
+				}
+				//ser duty cycle
+				TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
+				TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
+				TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
 
-		if (counter % 15 == 0 && rundone) {
-			int fti;
-
-//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
-			for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
-//				printf("%d\r\n", i);
-				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
-//				fti = (uint32_t) (adcValue[i]);
-				printf("adc %d = %lu \r\n", i, ((uint32_t) adcValue[i]));
-				fti = (int) (currentTemp[i] * 100.0);
-				printf("Temp %d = %d \r\n", i, fti);
-//				PID_OutPutValue[i] = (uint8_t)PIDcalculate(&pidx[i], 40.0, currentTemp[i]);
-				PID_OutPutValue[i] = PIDcalculate(&pidx[i],
-										40.0,
-										currentTemp[i]);
-				printf("PID_OutPut %d = %d \r\n ", i, PID_OutPutValue[i]);
-//				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
+				rundone = 0;
 			}
-			//ser duty cycle
-			TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
-			TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
-			TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
-
-			rundone = 0;
 		}
 //		selectMeunHandler(&userMeun);
 
-		if (counter % 12 == 0 && rundone) {
-			debug_print("update meun \n\r");
+		if (counter % 8 == 0 && rundone) {
 			displayMeunHandler(&userMeun);
 		}
 
@@ -575,7 +575,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM2) {
 		pid_counter++;
 		counter = counter > 100 ? 1 : counter + 1;
-		if (counter % 5 == 0) {
+		if (counter % 2 == 0) {
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 			rundone = 1; //runreset
 			printf(" Reset rundone \r\n");
