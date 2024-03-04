@@ -160,32 +160,32 @@ void reflow_Soliding_process(MEUN_TypeDef *meun) {
 
 void displayMeunHandler(MEUN_TypeDef *meun) {
 	//*_*hard code update state to Ldisplay something
-//	if (meun->meunUpdateState == 0) {
-		if (1) {
-		meun->meunUpdateState = 1;
+	if (meun->meunNeedUpdate) {
+		printf("Update Display \n\r");
+		meun->meunNeedUpdate = 0;
 		switch (meun->meunIndex) {
-		case 0:
+		case ReflowSoldering_select:
 			reflowSoldering_select();
 			debug_print("reflowSoldering \n\r");
 			break;
-		case 1:
+		case PID_Auto_Tuning_select:
 			_PID_Auto_Tuning_select();
 			debug_print("Tuning_select \n\r");
 			break;
-		case 2:
+		case PID_Auto_Tuning_wait:
 			_PID_Auto_Tuning_wait();
 			debug_print("Tuning_wait \n\r");
 			break;
-		case 3:
+		case PID_Auto_Tuning_OK:
 			_PID_Auto_Tuning_OK();
 			debug_print("Tuning_OK \n\r");
 			break;
-		case 4:
+		case PID_Auto_Tuning_fail:
 			_PID_Auto_Tuning_fail();
 			debug_print("fail \n\r");
 			break;
-		case 5:
-			reflow_Soliding_process(meun);
+		case Reflow_Soliding_process:
+			reflow_Soldering_process(meun);
 			debug_print("processing \n\r");
 			break;
 		default:
