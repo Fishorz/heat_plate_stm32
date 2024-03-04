@@ -6,6 +6,7 @@
  */
 
 #include "encoder.h"
+#include "debug_print.h"
 //extern TIM_HandleTypeDef htim2;
 //uint16_t perviousEncdoerCounter = 0;
 //
