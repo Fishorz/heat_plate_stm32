@@ -81,17 +81,17 @@ void startScreeen() {
 void reflowSoldering_select() {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Soldering<");
+	HD44780_PrintStr("Reflow Solder<");
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tuning");
+	HD44780_PrintStr("PID Auto Tune");
 }
 
 void _PID_Auto_Tuning_select() {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Soldering");
+	HD44780_PrintStr("Reflow Solder");
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tuning<");
+	HD44780_PrintStr("PID Auto Tune<");
 }
 
 void _PID_Auto_Tuning_wait() {
