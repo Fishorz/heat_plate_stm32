@@ -61,7 +61,7 @@ double PIDcalculate(PID_TypeDef *pid, double ambTemp, double currentTemp){
 	    // Deadband
 //	    PID_value = constrain(PID_value, 0, 255);
 	    pid->lastError = pid->error;
-	    printf("pid_counter= %lu\r\n", pid_counter);
+//	    printf("pid_counter = %lu\r\n", pid_counter);
 	    pid_counter = 0;
 	    return pid->PID_value;
 }

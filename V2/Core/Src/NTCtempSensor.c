@@ -16,7 +16,7 @@ void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 //		NTC_TypeDef *uNTC) {
 float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 	uNTC->_NTC_adcvalue = inoputAdcValue;
-	printf("run cal temp \r\n");
+//	printf("run cal temp \r\n");
 
 	//cal resistor
 	float voltage = 0.0;
@@ -30,6 +30,6 @@ float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 ////				logR2 = logR2 *10000;
 //	fti = (uint32_t) uNTC->temp;
 //				fti = (int) temp[i];
-	printf("run cal temp done!!\r\n");
+//	printf("run cal temp done!!\r\n");
 	return uNTC->temp;
 }
