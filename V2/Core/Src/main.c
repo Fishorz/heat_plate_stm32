@@ -56,6 +56,8 @@ uint8_t rundone = 1;
 unsigned long long reflowProcessTimeCounter = 0;
 unsigned long long _conventreflowProcessTimeCounter = 0;
 uint32_t currentTimeCounter = 0;
+uint8_t averageCurrentTemp = 0;
+float sum= 0.0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -578,6 +580,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void heating(){
 //	int fti;
+
 //			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
 	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
 //				printf("%d\r\n", i);
@@ -595,12 +598,20 @@ void heating(){
 	TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
 	TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
 	TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
+	sum = 0;
+	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++){
+		sum += currentTemp[i];
+	}
+	averageCurrentTemp = sum / 3.0 ;
 }
+
 
 void reflowProcess(){
 //		printf("reflowProcess heating \r\n");
 		_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
-		if(counter %100 == 0){
+		if(counter %50 == 0){
+			userMeun.nowTemp = averageCurrentTemp;
+			userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;
 			userMeun.meunNeedUpdate = 1;
 		}
 		if(_conventreflowProcessTimeCounter < PREHEAT_TIME){
