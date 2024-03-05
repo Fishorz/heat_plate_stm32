@@ -55,7 +55,7 @@
 #define RS 0x01
 
 /* Device I2C Address */
-#define DEVICE_ADDR     (0x3F << 1)
+#define DEVICE_ADDR     (0x27 << 1)
 
 void startScreeen();
 void HD44780_Init(uint8_t rows);

@@ -6,6 +6,7 @@
  */
 
 #include "encoder.h"
+#include "debug_print.h"
 //extern TIM_HandleTypeDef htim2;
 //uint16_t perviousEncdoerCounter = 0;
 //
@@ -38,13 +39,13 @@
 uint8_t pinA = 0;
 uint8_t pinB = 0;
 uint8_t state = 0;
-uint8_t encoderCounter = 0;
+int8_t encoderCounter = 0;
 uint8_t _lastBtnState = 0;
 uint8_t _btnState = 0;
 
 void calculatEncoder() {
-	pinA = GPIOB->IDR & GPIO_PIN_7;
-	pinB = GPIOB->IDR & GPIO_PIN_6;
+	pinA = (GPIOB->IDR & GPIO_PIN_7)>0;
+	pinB = (GPIOB->IDR & GPIO_PIN_6)>0;
 
 	state <<= 2; // if state = 0b0010 to 0b1000
 	state |= (pinA << 1) | pinB; // previous state 0b1000 to 0b1011 (if a and b is 1)
@@ -67,7 +68,8 @@ void calculatEncoder() {
 
 int btnState() {
 	int _return = 0;
-	_btnState = GPIOB->IDR & GPIO_PIN_5;
+	_btnState = (GPIOB->IDR & GPIO_PIN_5)>0;
+//	HAL_Delay(50);
 	if (_btnState == 1 && _lastBtnState == 0) {
 		_return = 1;
 	} else {
@@ -80,9 +82,11 @@ int btnState() {
 int encoderState() {
 	calculatEncoder();
 	int _return;
-	if (encoderCounter > 1) {
+	if (encoderCounter >= 4) {
+		encoderCounter = 0;
 		_return = 1;
-	} else if (encoderCounter < 1) {
+	} else if (encoderCounter <= -4) {
+		encoderCounter = 0;
 		_return = -1;
 	} else {
 		_return = 0;

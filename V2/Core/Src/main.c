@@ -24,9 +24,10 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "meun.h"
+#include <string.h>
 //#include "heater.h"
 #include "NTCtempSensor.h"
-//#include "NTCtempSensor.h"
+#include "pid.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
 
@@ -38,8 +39,23 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define NUMBER_OF_HEATER 3
+//#define PREHEAT_TIME 100 * 1000 //sec to ms
+//#define REFLOW_TIME 45 * 1000 //sec to ms
+#define PREHEAT_TIME 10 * 1000 //sec to ms
+#define REFLOW_TIME 5 * 1000 //sec to ms
+#define PREHEAT_TEMP 150 //°C
+#define REFLOW_TEMP 150 //°C
+
 uint16_t counter = 0;
+uint32_t pid_counter = 0;
+
+//state
+uint8_t heatdone = 0;
 uint8_t rundone = 1;
+//uint32_t reflowProcessTimeCounter = 0;
+unsigned long long reflowProcessTimeCounter = 0;
+unsigned long long _conventreflowProcessTimeCounter = 0;
+uint32_t currentTimeCounter = 0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,12 +76,11 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
-//Heater_TypeDef heater1;
+PID_TypeDef pidx[3];
 NTC_TypeDef ntc0;
-//PID_TypeDef pidx[3];
+
 //int list[] = {1, 2, 3};
 //PIDController pidx[] = {pid0, pid1, pid2};
-
 
 /* USER CODE END PV */
 
@@ -73,13 +88,15 @@ NTC_TypeDef ntc0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
+void heating();
+void reflowProcess();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -93,9 +110,9 @@ uint32_t CCR[3];
 
 const float pid_limMin = 0.0;
 const float pid_limMax = 100.0;
-const double pid_Kp[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const double pid_Ki[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
-const double pid_Kd[NUMBER_OF_HEATER] = {1.0, 1.0, 1.0};
+const double pid_Kp[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
+const double pid_Ki[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
+const double pid_Kd[NUMBER_OF_HEATER] = { 1.0, 1.0, 1.0 };
 uint8_t PID_OutPutValue[NUMBER_OF_HEATER];
 
 /* USER CODE END 0 */
@@ -142,19 +159,18 @@ int main(void)
 	debug_print("heaterInit OK!! \n");
 	meunInit(&userMeun);
 	debug_print("meunInit OK!! \n");
-/*	for(int i = 0; i<NUMBER_OF_HEATER; i++){
+	for (int i = 0; i < NUMBER_OF_HEATER; i++) {
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, pid_Kp[i], pid_Ki[i], pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
-		PID_SetSampleTime(&pidx[i], 500);
-		PID_SetOutputLimits(&pidx[i], -100, 100);
+		setPidFactor(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
+//		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
+//		PID_SetSampleTime(&pidx[i], 500);
+//		PID_SetOutputLimits(&pidx[i], -100, 100);
 	}
 	debug_print("PID init OK!! \n");
-	*/
-
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim3);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
@@ -168,54 +184,22 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+		selectMeunHandler(&userMeun);
 
-		if (counter % 15 == 0 && rundone) {
-			int fti;
-
-//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
-			for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
-//				printf("%d\r\n", i);
-				currentTemp[i] = calTemp(&ntc0, adcValue[i]);
-				uint8_t simple = 5;
-				uint32_t simpleArray[simple];
-				for (int j = 0; j < simple; j++) {
-									simpleArray[j] = adcValue[i];
-									printf("simpleArray %d = ", i); //temp1 temp2 temp3
-									printf("%lu\r\n", simpleArray[j]);
-								}
-//				fti = (uint32_t) (adcValue[i]);
-				printf("adc %d = %lu \r\n", i, ((uint32_t)adcValue[i]));
-				fti = (int) (currentTemp[i] * 100.0);
-				printf("Temp %d = %d \r\n", i, fti);
-
-//				PID_OutPutValue[i] = PID_Compute(&pidx[i]);
-				printf("PID_OutPut %d = %d \r\n " ,i ,PID_OutPutValue[i]);
-//				ccr[i] = (__IO uint32_t) ( (PID_OutPutValue /256.0) * 30000);
+		if (counter % 5 == 0 && rundone) {
+			if(userMeun.meunIndex == Reflow_Soliding_process && &userMeun.isReflowProcessing){
+				reflowProcess();
 			}
-			//ser duty cycle
-			TIM3->CCR1 = (PID_OutPutValue[1]/256.0) * 30000;
-			TIM3->CCR2 = (PID_OutPutValue[2]/256.0) * 30000;
-			TIM3->CCR3 = (PID_OutPutValue[3]/256.0) * 30000;
-
-			rundone = 0;
 		}
 //		selectMeunHandler(&userMeun);
 
-		if (counter % 14 == 0) {
-//			debug_print("update meun \n\r");
-//			displayMeunHandler(&userMeun);
+		if (counter % 8 == 0 && rundone) {
+			displayMeunHandler(&userMeun);
 		}
 
-		if (counter % 11 == 0) {
-//			if (userMeun.meunIndex == 0) {
-//				userMeun.meunUpdateState = 0;
-////				void heating(ADC_HandleTypeDef *hadc, NTC_TypeDef *uNTC, PIDController *pid, int i);
-//				heating(&hadc1, &ntc1, &pid1, 1);
-//				TIM3->CCR1 = pid1.out;
-//				TIM3->CCR2 = pid1.out;
-//				TIM3->CCR2 = pid1.out;
-//			}
-//			debug_print("PID update \n\r");
+		if (counter % 50 == 0 && rundone) {
+//			printf("userMeun.isReflowProcessing = %d \r\n", userMeun.isReflowProcessing);
+//			printf("reflowProcessTimeCounter = %lu \r\n", reflowProcessTimeCounter);
 		}
     /* USER CODE END WHILE */
 
@@ -389,11 +373,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-//  htim2.Init.Prescaler = 720-1;
-  htim2.Init.Prescaler = 180-1;
+  htim2.Init.Prescaler = 720-1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-//  htim2.Init.Period = 15000-1;
-  htim2.Init.Period = 10000-1;
+  htim2.Init.Period = 2000-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -429,6 +411,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -438,9 +421,18 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 100-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 30000-1;
+  htim3.Init.Period = 720-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -563,29 +555,72 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-//	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	  //1 count is 10ms
-	//	char debugPrint[10];
-	//	int x = ntc1.temp[1];
-	//	itoa(counter, debugPrint, 10);
-	//	debug_print(debugPrint);
-//	printf("%d\r\n", counter);---
-	if(htim->Instance==TIM2){
-		counter = counter > 100 ? 1 : counter + 1;
-		if (counter % 5 == 0) {
+
+	if (htim->Instance == TIM2) { //50ms per tick
+//		uint8_t tempFlag = &userMeun.isReflowProcessing;
+		if(userMeun.isReflowProcessing){
+			reflowProcessTimeCounter ++;
+		} else if(!(userMeun.isReflowProcessing)){
+			reflowProcessTimeCounter = 0;
+		}
+//		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
+		counter = counter > 500 ? 1 : counter + 1;
+		if (counter % 2 == 0) {
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 			rundone = 1; //runreset
-			printf(" Reset rundone \r\n");
-	}
-
-		if (counter == 100) {
-//			rundone = 1; //runreset;
-			printf("Counter Reset \r\n");
-//			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	}
+//			printf(" Reset rundone \r\n");
+		}
+	} //end timer 2 interrupt
+	if(htim->Instance==TIM3){
+		pid_counter++;
 	}
 }
 
+void heating(){
+//	int fti;
+//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
+	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
+//				printf("%d\r\n", i);
+		currentTemp[i] = calTemp(&ntc0, adcValue[i]);
+//				fti = (uint32_t) (adcValue[i]);
+//		printf("adc %d = %lu \r\n", i, ((uint32_t) adcValue[i]));
+//		fti = (int) (currentTemp[i] * 100.0);
+//		printf("Temp %d = %d \r\n", i, fti);
+		PID_OutPutValue[i] = PIDcalculate(&pidx[i],
+								setTemp,
+								currentTemp[i]);
+//		printf("PID_OutPut %d = %d \r\n ", i, PID_OutPutValue[i]);
+	}
+	//set duty cycle
+	TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
+	TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
+	TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
+}
+
+void reflowProcess(){
+//		printf("reflowProcess heating \r\n");
+		_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
+		if(counter %100 == 0){
+			userMeun.meunNeedUpdate = 1;
+		}
+		if(_conventreflowProcessTimeCounter < PREHEAT_TIME){
+			setTemp = PREHEAT_TEMP;
+			strcpy(userMeun.status, "pre");
+			heating();
+		} else if (_conventreflowProcessTimeCounter > PREHEAT_TIME && _conventreflowProcessTimeCounter < (REFLOW_TIME + PREHEAT_TIME) ){
+			setTemp = REFLOW_TEMP;
+			strcpy(userMeun.status, "ref");
+			heating();
+		} else { //cooling
+			setTemp = 0;
+			userMeun.isReflowProcessing = 0;
+			userMeun.meunIndex = ReflowSoldering_select;
+			userMeun.meunNeedUpdate = 1;
+			TIM3->CCR1 = 0;
+			TIM3->CCR2 = 0;
+			TIM3->CCR3 = 0;
+		}
+}
 /* USER CODE END 4 */
 
 /**

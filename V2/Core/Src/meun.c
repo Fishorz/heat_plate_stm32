@@ -62,10 +62,14 @@
 enum display meunIndex;
 extern uint8_t counter;
 
+
+
 void meunInit(MEUN_TypeDef *meun){
 	meun->meunIndex = 0;
 	meun->previousMeunIndex = 0;
-	meun->meunUpdateState = 0;
+	meun->meunNeedUpdate = 1;
+
+	meun->isReflowProcessing = 0;
 	HD44780_Init(2);
 }
 
@@ -81,17 +85,17 @@ void startScreeen() {
 void reflowSoldering_select() {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Soldering<");
+	HD44780_PrintStr("Reflow Solder<");
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tuning");
+	HD44780_PrintStr("PID Auto Tune");
 }
 
 void _PID_Auto_Tuning_select() {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Soldering");
+	HD44780_PrintStr("Reflow Solder");
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tuning<");
+	HD44780_PrintStr("PID Auto Tune<");
 }
 
 void _PID_Auto_Tuning_wait() {
@@ -139,13 +143,13 @@ void _PID_Auto_Tuning_fail() {
  *|N_T:XXX S_T:XXX |
  *------------------
  */
-void reflow_Soliding_process(MEUN_TypeDef *meun) {
+void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("step:");
 	HD44780_PrintStr(&(meun->status));
-	HD44780_SetCursor(8, 0); //Time:
+	HD44780_SetCursor(8, 0); //Time from start soldering
 	HD44780_PrintStr("Time:");
 	itoa(meun->heatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
@@ -159,26 +163,34 @@ void reflow_Soliding_process(MEUN_TypeDef *meun) {
 }
 
 void displayMeunHandler(MEUN_TypeDef *meun) {
-	if (meun->meunUpdateState == 0) {
-		meun->meunUpdateState = 1;
+	//*_*hard code update state to Ldisplay something
+	if (meun->meunNeedUpdate) {
+		printf("Update Display \n\r");
+		meun->meunNeedUpdate = 0;
 		switch (meun->meunIndex) {
-		case 0:
+		case ReflowSoldering_select:
 			reflowSoldering_select();
+			debug_print("Reflow Soldering select \n\r");
 			break;
-		case 1:
+		case PID_Auto_Tuning_select:
 			_PID_Auto_Tuning_select();
+			debug_print("PID_Auto Tuning select \n\r");
 			break;
-		case 2:
+		case PID_Auto_Tuning_wait:
 			_PID_Auto_Tuning_wait();
+			debug_print("Tuning_wait \n\r");
 			break;
-		case 3:
+		case PID_Auto_Tuning_OK:
 			_PID_Auto_Tuning_OK();
+			debug_print("Tuning_OK \n\r");
 			break;
-		case 4:
+		case PID_Auto_Tuning_fail:
 			_PID_Auto_Tuning_fail();
+			debug_print("fail \n\r");
 			break;
-		case 5:
-			reflow_Soliding_process(meun);
+		case Reflow_Soliding_process:
+			reflow_Soldering_process(meun);
+			debug_print("Reflow Soldering Process \n\r");
 			break;
 		default:
 			return;
@@ -190,19 +202,38 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 //	int _encoderState_ = 0;
 //	_encoderState_ = encoderState();
 	//change meun selection(pid or reflow)
-	if (encoderState() > 0 && meun->meunIndex == 0) {
-		meun->meunIndex = 1;
-		debug_print("meunIndex = 1");
+//	int8_t encoderStateTemp = encoderState();
+	if (encoderState() > 0 && meun->meunIndex == ReflowSoldering_select) {
+		meun->meunIndex = PID_Auto_Tuning_select;
+		meun->meunNeedUpdate = 1;
+		debug_print("meunIndex = 1 \r\n");
 	}
-	if (encoderState() < 0 && meun->meunIndex == 1) {
-		meun->meunIndex = 0;
-		debug_print("meunIndex = 0");
+	if (encoderState() < 0 && meun->meunIndex == PID_Auto_Tuning_select) {
+		meun->meunIndex = ReflowSoldering_select;
+		meun->meunNeedUpdate = 1;
+		debug_print("meunIndex = 0 \r\n");
 	}
+
 	//which meun selected
-	if (btnState() == 1 && meun->meunIndex == 0) {
-		reflow_Soliding_process(meun);
+	//From Meun Reflow Soliding select to Reflow Soliding process
+	if (btnState() == 1 && meun->meunIndex == ReflowSoldering_select) {
+		printf("kick in to Reflow Soldering Process \r\n");
+		meun->meunIndex = Reflow_Soliding_process;
+		meun->isReflowProcessing = 1;
+		reflow_Soldering_process(meun);
+		meun->meunNeedUpdate = 1;
 	}
-	if (btnState() == 1 && meun->meunIndex == 1) {
-		_PID_Auto_Tuning_wait();
+	// From PID Auto Tuning select to PID Auto Tuning
+	if (btnState() == 1 && meun->meunIndex == PID_Auto_Tuning_select) {
+		printf("kick in to Running Auto Tune PID \r\n");
+		meun->meunIndex = PID_Auto_Tuning_wait;
+		meun->meunNeedUpdate = 1;
+	}
+	// From Reflow Soliding process to Meun and selecting Reflow Soldering
+	if (btnState() == 1 && meun->meunIndex == Reflow_Soliding_process) {
+		printf("return to Meun \r\n");
+		meun->isReflowProcessing = 0;
+		meun->meunIndex = ReflowSoldering_select;
+		meun->meunNeedUpdate = 1;
 	}
 }

@@ -13,7 +13,7 @@ uint16_t setpoint = SETPOINT;
 //extern ADC_HandleTypeDef hadc1;
 //ADC_ChannelConfTypeDef heaterADC;
 
-void heating( NTC_TypeDef *uNTC, int i,uint32_t inoputAdcValue[3]) {
+void heating2( NTC_TypeDef *uNTC, int i,uint32_t inoputAdcValue[3]) {
 	/* Compute new control signal */
 	calTemp(uNTC, inoputAdcValue);
 //	float temp = 0;
