@@ -69,6 +69,7 @@ void calculatEncoder() {
 int btnState() {
 	int _return = 0;
 	_btnState = (GPIOB->IDR & GPIO_PIN_5)>0;
+//	HAL_Delay(50);
 	if (_btnState == 1 && _lastBtnState == 0) {
 		_return = 1;
 	} else {
@@ -81,9 +82,11 @@ int btnState() {
 int encoderState() {
 	calculatEncoder();
 	int _return;
-	if (encoderCounter > 1) {
+	if (encoderCounter >= 4) {
+		encoderCounter = 0;
 		_return = 1;
-	} else if (encoderCounter < 1) {
+	} else if (encoderCounter <= -4) {
+		encoderCounter = 0;
 		_return = -1;
 	} else {
 		_return = 0;
