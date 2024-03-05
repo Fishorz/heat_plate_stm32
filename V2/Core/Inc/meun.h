@@ -12,13 +12,15 @@
 typedef struct  {   // Structure declaration
 	uint8_t meunIndex;
 	uint8_t previousMeunIndex;
-	uint8_t meunNeedUpdate;
+	uint8_t meunNeedUpdate; //is the meun need to update?
 
 	uint8_t nowTemp;
 	uint8_t targetTemp;
 	uint8_t heatTime;
-	char status;
 
+	char status[4];
+	uint8_t isReflowProcessing;
+	//for display meun state
 	enum display{
 		ReflowSoldering_select,
 		PID_Auto_Tuning_select,
