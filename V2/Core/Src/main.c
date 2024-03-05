@@ -24,6 +24,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "meun.h"
+#include <string.h>
 //#include "heater.h"
 #include "NTCtempSensor.h"
 #include "pid.h"
