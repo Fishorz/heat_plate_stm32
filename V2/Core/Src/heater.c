@@ -15,7 +15,7 @@ uint16_t setpoint = SETPOINT;
 
 void heating2( NTC_TypeDef *uNTC, int i,uint32_t inoputAdcValue[3]) {
 	/* Compute new control signal */
-	calTemp(uNTC, inoputAdcValue);
+//	calTemp(uNTC, inoputAdcValue);
 //	float temp = 0;
 //	temp = uNTC->temp[i];
 }
