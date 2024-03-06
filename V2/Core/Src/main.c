@@ -56,7 +56,7 @@ uint8_t rundone = 1;
 unsigned long long reflowProcessTimeCounter = 0;
 unsigned long long _conventreflowProcessTimeCounter = 0;
 uint32_t currentTimeCounter = 0;
-uint8_t averageCurrentTemp = 0;
+uint16_t averageCurrentTemp = 0;
 float sum= 0.0;
 /* USER CODE END PD */
 
@@ -202,6 +202,10 @@ int main(void)
 		if (counter % 50 == 0 && rundone) {
 //			printf("userMeun.isReflowProcessing = %d \r\n", userMeun.isReflowProcessing);
 //			printf("reflowProcessTimeCounter = %lu \r\n", reflowProcessTimeCounter);
+			for(int i=0;i<3;i++){
+				printf("currentTemp %d = %3.f \r\n", i, currentTemp[i]);
+			}
+			printf("average = %d \r\n", averageCurrentTemp);
 		}
     /* USER CODE END WHILE */
 
@@ -600,9 +604,10 @@ void heating(){
 	TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
 	sum = 0;
 	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++){
-		sum += currentTemp[i];
+		sum = sum + (int)(currentTemp[i]);
 	}
 	averageCurrentTemp = sum / 3.0 ;
+
 }
 
 
