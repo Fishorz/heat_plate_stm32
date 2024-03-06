@@ -23,11 +23,16 @@ typedef struct  {   // Structure declaration
 	//for display meun state
 	enum display{
 		ReflowSoldering_select,
+		Set_Perheat_temperature,
+		Set_Perheat_time,
+		Set_Reflow_temperature,
+		Set_Reflow_time,
+
 		PID_Auto_Tuning_select,
 		PID_Auto_Tuning_wait,
 		PID_Auto_Tuning_OK,
 		PID_Auto_Tuning_fail,
-		Reflow_Soliding_process
+		Reflow_Soliding_process,
 	};
 
 }MEUN_TypeDef;
@@ -41,6 +46,11 @@ void _PID_Auto_Tuning_fail();
 void reflow_Soldering_process(MEUN_TypeDef *meun);
 void displayMeunHandler(MEUN_TypeDef *meun);
 void selectMeunHandler(MEUN_TypeDef *meun);
+
+void _Set_Perheat_temperature(int perheatTemperature);
+void _Set_Perheat_time(int perheatTime);
+void _Set_Reflow_temperature(int reflowTemperature);
+void _Set_Reflow_time(int reflowTime);
 
 // End the structure with a semicolon
 

@@ -138,6 +138,48 @@ void _PID_Auto_Tuning_fail() {
 	HD44780_PrintStr("PID Tuning Fail");
 }
 /*
+ 		Set_Perheat_temperature,
+		Set_Perheat_time,
+		Set_Reflow_temperature,
+		Set_Reflow_time,
+ */
+void _Set_Perheat_temperature(int perheatTemperature) {
+	char displayTemp[10];
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("Perheat Temperature =");
+	itoa(perheatTemperature, displayTemp, 10);
+	HD44780_PrintStr(displayTemp);
+}
+
+void _Set_Perheat_time(int perheatTime) {
+	char displayTemp[10];
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("Perheat Time = ");
+	itoa(perheatTime, displayTemp, 10);
+	HD44780_PrintStr(displayTemp);
+}
+
+void _Set_Reflow_temperature(int reflowTemperature) {
+	char displayTemp[10];
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("Reflow Temperature = ");
+	itoa(reflowTemperature, displayTemp, 10);
+	HD44780_PrintStr(displayTemp);
+}
+
+void _Set_Reflow_time(int reflowTime) {
+	char displayTemp[10];
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("Reflow Time =");
+	HD44780_SetCursor(0, 1);
+	itoa(reflowTime, displayTemp, 10);
+	HD44780_PrintStr(displayTemp);
+}
+/*
  *------------------
  *|Step:XX Time:XXX|
  *|N_T:XXX S_T:XXX |
@@ -192,6 +234,22 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 			reflow_Soldering_process(meun);
 			debug_print("Reflow Soldering Process \n\r");
 			break;
+		case Set_Perheat_temperature:
+//			reflow_Soldering_process(meun);
+//			debug_print("Reflow Soldering Process \n\r");
+			break;
+		case Set_Perheat_time:
+//			reflow_Soldering_process(meun);
+//			debug_print("Reflow Soldering Process \n\r");
+			break;
+		case Set_Reflow_temperature:
+//			reflow_Soldering_process(meun);
+//			debug_print("Reflow Soldering Process \n\r");
+			break;
+		case Set_Reflow_time:
+//			reflow_Soldering_process(meun);
+//			debug_print("Reflow Soldering Process \n\r");
+			break;
 		default:
 			return;
 		}
@@ -199,10 +257,15 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 }
 
 void selectMeunHandler(MEUN_TypeDef *meun) {
-//	int _encoderState_ = 0;
-//	_encoderState_ = encoderState();
-	//change meun selection(pid or reflow)
-//	int8_t encoderStateTemp = encoderState();
+	/*
+	 * change meun selection
+	 * Start Reflow
+	 * Edit Perheat_temperature
+	 * Edit Perheat_time
+	 * Edit Reflow_temperature
+	 * Edit Reflow_time
+	 * */
+
 	if (encoderState() > 0 && meun->meunIndex == ReflowSoldering_select) {
 		meun->meunIndex = PID_Auto_Tuning_select;
 		meun->meunNeedUpdate = 1;
