@@ -250,7 +250,7 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 	if (meun->meunNeedUpdate) {
 		printf("Update Display \n\r");
 		meun->meunNeedUpdate = 0;
-		if(meun->meunLayer == layer_1){
+		if (meun->meunLayer == layer_1) {
 			switch (meun->meunIndex) {
 			case ReflowSoldering_select:
 				first_page();
@@ -265,18 +265,6 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 			case Set_Reflow_time:
 				third_page();
 				debug_print("in the third_page \n\r");
-				break;
-			case PID_Auto_Tuning_wait:
-				_PID_Auto_Tuning_wait();
-				debug_print("Tuning_wait \n\r");
-				break;
-			case PID_Auto_Tuning_OK:
-				_PID_Auto_Tuning_OK();
-				debug_print("Tuning_OK \n\r");
-				break;
-			case PID_Auto_Tuning_fail:
-				_PID_Auto_Tuning_fail();
-				debug_print("fail \n\r");
 				break;
 			case Reflow_Soliding_process:
 				reflow_Soldering_process(meun);
@@ -323,6 +311,29 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			meun->meunNeedUpdate = 1;
 			debug_print("meunIndex = 0 \r\n");
 		}
+	}
+
+	//To let value can be change by encoder such like temp or time
+	if (encoderState() > 0 && meun->meunLayer == layer_2) {
+		switch (meun->meunIndex) {
+		case (Set_Perheat_temperature):
+			printf("Set preheart temp ++ \r\n");
+		meun->perheatTemp++;
+			break;
+		case (Set_Perheat_time):
+			printf("Set preheart time ++ \r\n");
+		meun->perheatTime++;
+			break;
+		case (Set_Reflow_temperature):
+		printf("Set reflow temp ++ \r\n");
+		meun->reflowTemp++;
+			break;
+		case (Set_Reflow_time):
+		printf("Set reflow time ++ \r\n");
+		meun->reflowTime++;
+			break;
+		}
+		meun->meunNeedUpdate = 1;
 	}
 
 	//which meun selected
