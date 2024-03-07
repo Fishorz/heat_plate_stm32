@@ -59,22 +59,25 @@
 //uint8_t previousMeunIndex = 0;
 //uint8_t meunUpdateState;
 
-enum display meunIndex;
+enum display_item meunIndex;
+enum display_layer meunLayer;
 extern uint8_t counter;
 
-
-
-void meunInit(MEUN_TypeDef *meun){
+void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
+		int defaultPerheatTime, int defaultReflowTemp, int defaultReflowTime) {
 	meun->meunIndex = 0;
 	meun->previousMeunIndex = 0;
 	meun->meunNeedUpdate = 1;
-
 	meun->isReflowProcessing = 0;
+
+	meun->perheatTemp = defaultPerheatTemp;
+	meun->perheatTime = defaultPerheatTime;
+	meun->reflowTemp = defaultReflowTemp;
+	meun->reflowTime = defaultReflowTime;
 	HD44780_Init(2);
 }
 
 void startScreeen() {
-	HD44780_Clear();
 	HD44780_NoDisplay();
 	HD44780_Cursor();
 	HD44780_SetCursor(0, 0);
@@ -82,20 +85,52 @@ void startScreeen() {
 	HD44780_PrintSpecialChar(0);
 }
 
-void reflowSoldering_select() {
-	HD44780_Clear();
-	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Solder<");
-	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tune");
+void first_page() {
+	HD44780_SetCursor(1, 0);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("-DIY Heat Plate-");
+	HD44780_SetCursor(1, 1);
+	HD44780_PrintStr("Reflow Solder");
 }
 
-void _PID_Auto_Tuning_select() {
-	HD44780_Clear();
-	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Solder");
+void second_page() {
+	HD44780_SetCursor(1, 0);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("Set Pre Temp   ");
+	HD44780_SetCursor(1, 1);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("Set Pre Time   ");
+}
+
+void third_page() {
+	HD44780_SetCursor(1, 0);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("Set Reflow Temp");
+	HD44780_SetCursor(1, 1);
+	HD44780_PrintStr("Set Reflow Time");
+}
+
+void _updateCursorPosition(MEUN_TypeDef *meun) {
+	//Clear display's ">" parts
+	HD44780_SetCursor(0, 0); //1st line, 1st block
+	HD44780_PrintStr(" "); //erase by printing a space
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("PID Auto Tune<");
+	HD44780_PrintStr(" ");
+
+	//Place cursor to the new position
+	//in the welcome page set cursor to 2nd line
+	if (meun->meunIndex == 0) {
+		HD44780_SetCursor(0, 1); // 2nd line, 1st block
+		HD44780_PrintStr(">");
+		return;
+	}
+	if (meun->meunIndex % 2 == 0) {
+		HD44780_SetCursor(0, 0); // 1st line, 1st block
+		HD44780_PrintStr(">");
+	} else {
+		HD44780_SetCursor(0, 1); // 2nd line, 1st block
+		HD44780_PrintStr(">");
+	}
 }
 
 void _PID_Auto_Tuning_wait() {
@@ -138,45 +173,49 @@ void _PID_Auto_Tuning_fail() {
 	HD44780_PrintStr("PID Tuning Fail");
 }
 /*
- 		Set_Perheat_temperature,
-		Set_Perheat_time,
-		Set_Reflow_temperature,
-		Set_Reflow_time,
+ Set_Perheat_temperature,
+ Set_Perheat_time,
+ Set_Reflow_temperature,
+ Set_Reflow_time,
  */
-void _Set_Perheat_temperature(int perheatTemperature) {
+void _Set_Perheat_temperature(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Perheat Temperature =");
-	itoa(perheatTemperature, displayTemp, 10);
+//	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
+	HD44780_PrintStr("Perheat Temp =  ");
+	itoa(meun->perheatTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 
-void _Set_Perheat_time(int perheatTime) {
+void _Set_Perheat_time(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Perheat Time = ");
-	itoa(perheatTime, displayTemp, 10);
+//	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
+	HD44780_PrintStr("Perheat Time =  ");
+	itoa(meun->perheatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 
-void _Set_Reflow_temperature(int reflowTemperature) {
+void _Set_Reflow_temperature(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Temperature = ");
-	itoa(reflowTemperature, displayTemp, 10);
+//	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
+	HD44780_PrintStr("Reflow Temp =   ");
+	itoa(meun->reflowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 
-void _Set_Reflow_time(int reflowTime) {
+void _Set_Reflow_time(MEUN_TypeDef *meun) {
 	char displayTemp[10];
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
-	HD44780_PrintStr("Reflow Time =");
+//	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
+	HD44780_PrintStr("Reflow Time =   ");
 	HD44780_SetCursor(0, 1);
-	itoa(reflowTime, displayTemp, 10);
+	itoa(meun->reflowTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 /*
@@ -204,55 +243,59 @@ void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	HD44780_PrintStr(displayTemp);
 }
 
+//To control what should displaying
 void displayMeunHandler(MEUN_TypeDef *meun) {
 	//*_*hard code update state to Ldisplay something
+
 	if (meun->meunNeedUpdate) {
 		printf("Update Display \n\r");
 		meun->meunNeedUpdate = 0;
-		switch (meun->meunIndex) {
-		case ReflowSoldering_select:
-			reflowSoldering_select();
-			debug_print("Reflow Soldering select \n\r");
-			break;
-		case PID_Auto_Tuning_select:
-			_PID_Auto_Tuning_select();
-			debug_print("PID_Auto Tuning select \n\r");
-			break;
-		case PID_Auto_Tuning_wait:
-			_PID_Auto_Tuning_wait();
-			debug_print("Tuning_wait \n\r");
-			break;
-		case PID_Auto_Tuning_OK:
-			_PID_Auto_Tuning_OK();
-			debug_print("Tuning_OK \n\r");
-			break;
-		case PID_Auto_Tuning_fail:
-			_PID_Auto_Tuning_fail();
-			debug_print("fail \n\r");
-			break;
-		case Reflow_Soliding_process:
-			reflow_Soldering_process(meun);
-			debug_print("Reflow Soldering Process \n\r");
-			break;
-		case Set_Perheat_temperature:
-//			reflow_Soldering_process(meun);
-//			debug_print("Reflow Soldering Process \n\r");
-			break;
-		case Set_Perheat_time:
-//			reflow_Soldering_process(meun);
-//			debug_print("Reflow Soldering Process \n\r");
-			break;
-		case Set_Reflow_temperature:
-//			reflow_Soldering_process(meun);
-//			debug_print("Reflow Soldering Process \n\r");
-			break;
-		case Set_Reflow_time:
-//			reflow_Soldering_process(meun);
-//			debug_print("Reflow Soldering Process \n\r");
-			break;
-		default:
-			return;
+		if(meun->meunLayer == layer_1){
+			switch (meun->meunIndex) {
+			case ReflowSoldering_select:
+				first_page();
+				debug_print("in the first_page \n\r");
+				break;
+			case Set_Perheat_temperature:
+			case Set_Perheat_time:
+				second_page();
+				debug_print("in the second_page \n\r");
+				break;
+			case Set_Reflow_temperature:
+			case Set_Reflow_time:
+				third_page();
+				debug_print("in the third_page \n\r");
+				break;
+			case PID_Auto_Tuning_wait:
+				_PID_Auto_Tuning_wait();
+				debug_print("Tuning_wait \n\r");
+				break;
+			case PID_Auto_Tuning_OK:
+				_PID_Auto_Tuning_OK();
+				debug_print("Tuning_OK \n\r");
+				break;
+			case PID_Auto_Tuning_fail:
+				_PID_Auto_Tuning_fail();
+				debug_print("fail \n\r");
+				break;
+			case Reflow_Soliding_process:
+				reflow_Soldering_process(meun);
+				debug_print("Reflow Soldering Process \n\r");
+				break;
+			default:
+				return;
+			}
+			_updateCursorPosition(meun);
 		}
+	}
+}
+
+void selectOverFlow(MEUN_TypeDef *meun) {
+	//The end of the slecetion is "Set_Reflow_time"
+	if (meun->meunIndex > Set_Reflow_time) {
+		meun->meunIndex = Set_Reflow_time;
+	} else if (meun->meunIndex < 1) {
+		meun->meunIndex = 1;
 	}
 }
 
@@ -264,39 +307,60 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 	 * Edit Perheat_time
 	 * Edit Reflow_temperature
 	 * Edit Reflow_time
-	 * */
+	 */
 
-	if (encoderState() > 0 && meun->meunIndex == ReflowSoldering_select) {
-		meun->meunIndex = PID_Auto_Tuning_select;
-		meun->meunNeedUpdate = 1;
-		debug_print("meunIndex = 1 \r\n");
-	}
-	if (encoderState() < 0 && meun->meunIndex == PID_Auto_Tuning_select) {
-		meun->meunIndex = ReflowSoldering_select;
-		meun->meunNeedUpdate = 1;
-		debug_print("meunIndex = 0 \r\n");
+	// To hide the meun should not show by selection
+	if (meun->meunLayer == layer_1) {
+		if (encoderState() > 0) {
+			meun->meunIndex++;
+			selectOverFlow(meun);
+			meun->meunNeedUpdate = 1;
+			debug_print("meunIndex = 1 \r\n");
+		}
+		if (encoderState() < 0) {
+			meun->meunIndex--;
+			selectOverFlow(meun);
+			meun->meunNeedUpdate = 1;
+			debug_print("meunIndex = 0 \r\n");
+		}
 	}
 
 	//which meun selected
-	//From Meun Reflow Soliding select to Reflow Soliding process
-	if (btnState() == 1 && meun->meunIndex == ReflowSoldering_select) {
-		printf("kick in to Reflow Soldering Process \r\n");
-		meun->meunIndex = Reflow_Soliding_process;
-		meun->isReflowProcessing = 1;
-		reflow_Soldering_process(meun);
-		meun->meunNeedUpdate = 1;
-	}
-	// From PID Auto Tuning select to PID Auto Tuning
-	if (btnState() == 1 && meun->meunIndex == PID_Auto_Tuning_select) {
-		printf("kick in to Running Auto Tune PID \r\n");
-		meun->meunIndex = PID_Auto_Tuning_wait;
-		meun->meunNeedUpdate = 1;
-	}
-	// From Reflow Soliding process to Meun and selecting Reflow Soldering
-	if (btnState() == 1 && meun->meunIndex == Reflow_Soliding_process) {
-		printf("return to Meun \r\n");
-		meun->isReflowProcessing = 0;
-		meun->meunIndex = ReflowSoldering_select;
-		meun->meunNeedUpdate = 1;
+	if (btnState()) {
+		if (meun->meunLayer == layer_1) {
+			switch (meun->meunIndex) {
+			case (ReflowSoldering_select):
+				printf("kick in to Reflow Soldering Process \r\n");
+				meun->meunIndex = Reflow_Soliding_process;
+				meun->isReflowProcessing = 1;
+				reflow_Soldering_process(meun);
+				meun->meunNeedUpdate = 1;
+				break;
+			case (Set_Perheat_temperature):
+				printf("kick in to Set_Perheat_temperature \r\n");
+				_Set_Perheat_temperature(meun);
+				break;
+			case (Set_Perheat_time):
+				printf("kick in to Set_Perheat_time \r\n");
+				_Set_Perheat_temperature(meun);
+				break;
+			case (Set_Reflow_temperature):
+				printf("kick in to Set_Reflow_temperature \r\n");
+				_Set_Reflow_temperature(meun);
+				break;
+			case (Set_Reflow_time):
+				printf("kick in to Set_Reflow_time \r\n");
+				_Set_Reflow_time(meun);
+				break;
+			}
+			meun->meunLayer = layer_2;
+			return;
+		}
+		if (meun->meunLayer == layer_2) {
+
+			meun->meunLayer = layer_1;
+			meun->meunNeedUpdate = 1;
+			return;
+		}
 	}
 }

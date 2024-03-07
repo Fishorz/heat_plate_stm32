@@ -157,9 +157,8 @@ int main(void)
 	debug_print("Init Start \n");
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 	debug_print("GPIO init OK!! \n");
-//	heaterInit(&heater1, 1, 1, 1, 200);
 	debug_print("heaterInit OK!! \n");
-	meunInit(&userMeun);
+	meunInit(&userMeun, PREHEAT_TEMP, PREHEAT_TIME, REFLOW_TEMP, REFLOW_TIME);
 	debug_print("meunInit OK!! \n");
 	for (int i = 0; i < NUMBER_OF_HEATER; i++) {
 //		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
@@ -619,12 +618,12 @@ void reflowProcess(){
 			userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;
 			userMeun.meunNeedUpdate = 1;
 		}
-		if(_conventreflowProcessTimeCounter < PREHEAT_TIME){
-			setTemp = PREHEAT_TEMP;
+		if(_conventreflowProcessTimeCounter < userMeun.perheatTime){
+			setTemp = (double)(userMeun.perheatTemp);
 			strcpy(userMeun.status, "pre");
 			heating();
-		} else if (_conventreflowProcessTimeCounter > PREHEAT_TIME && _conventreflowProcessTimeCounter < (REFLOW_TIME + PREHEAT_TIME) ){
-			setTemp = REFLOW_TEMP;
+		} else if (_conventreflowProcessTimeCounter > userMeun.perheatTime && _conventreflowProcessTimeCounter < (userMeun.reflowTime + userMeun.perheatTime) ){
+			setTemp = (double)(userMeun.reflowTemp);
 			strcpy(userMeun.status, "ref");
 			heating();
 		} else { //cooling
