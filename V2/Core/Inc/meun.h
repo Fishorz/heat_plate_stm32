@@ -10,8 +10,8 @@
 
 
 typedef struct  {   // Structure declaration
-	uint8_t meunIndex;
-	uint8_t meunLayer;
+//	uint8_t meunIndex;
+//	uint8_t meunLayer;
 	uint8_t previousMeunIndex;
 	uint8_t meunNeedUpdate; //is the meun need to update?
 
@@ -19,13 +19,13 @@ typedef struct  {   // Structure declaration
 	uint8_t targetTemp;
 	uint8_t heatTime;
 
-	uint8_t perheatTemp;
-	uint8_t perheatTime;
-	uint8_t reflowTemp;
-	uint8_t reflowTime;
+	uint16_t perheatTemp;
+	uint32_t perheatTime;
+	uint16_t reflowTemp;
+	uint32_t reflowTime;
 
-	char status[4];
-	uint8_t isReflowProcessing;
+	char status[3];
+	int8_t isReflowProcessing;
 	//for display meun state
 	enum display_item{
 		welcome,
@@ -44,8 +44,13 @@ typedef struct  {   // Structure declaration
 
 	enum display_layer{
 		layer_1,
-		layer_2
+		layer_2,
+		layer_3
 	};
+
+	enum display_item meunIndex;
+	enum display_layer meunLayer;
+
 }MEUN_TypeDef;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp, int defaultPerheatTime,

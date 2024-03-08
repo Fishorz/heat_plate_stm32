@@ -44,7 +44,7 @@
 #define PREHEAT_TIME 10 * 1000 //sec to ms
 #define REFLOW_TIME 5 * 1000 //sec to ms
 #define PREHEAT_TEMP 150 //°C
-#define REFLOW_TEMP 150 //°C
+#define REFLOW_TEMP 210 //°C
 
 uint16_t counter = 0;
 uint32_t pid_counter = 0;
@@ -188,11 +188,10 @@ int main(void)
 		selectMeunHandler(&userMeun);
 
 		if (counter % 5 == 0 && rundone) {
-			if(userMeun.meunIndex == Reflow_Soliding_process && &userMeun.isReflowProcessing){
+			if(userMeun.meunIndex == Reflow_Soliding_process && userMeun.isReflowProcessing == 1){
 				reflowProcess();
 			}
 		}
-//		selectMeunHandler(&userMeun);
 
 		if (counter % 8 == 0 && rundone) {
 			displayMeunHandler(&userMeun);
@@ -565,9 +564,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //		uint8_t tempFlag = &userMeun.isReflowProcessing;
 		if(userMeun.isReflowProcessing){
 			reflowProcessTimeCounter ++;
-		} else if(!(userMeun.isReflowProcessing)){
-			reflowProcessTimeCounter = 0;
 		}
+//		} else if(!(userMeun.isReflowProcessing)){
+//			reflowProcessTimeCounter = 0;
+//		}
 //		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
 		counter = counter > 500 ? 1 : counter + 1;
 		if (counter % 2 == 0) {
@@ -612,29 +612,37 @@ void heating(){
 
 void reflowProcess(){
 //		printf("reflowProcess heating \r\n");
+
+		//update the temp time inf to display
 		_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
 		if(counter %50 == 0){
 			userMeun.nowTemp = averageCurrentTemp;
 			userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;
 			userMeun.meunNeedUpdate = 1;
 		}
+
+		//count time to run preheat process
 		if(_conventreflowProcessTimeCounter < userMeun.perheatTime){
 			setTemp = (double)(userMeun.perheatTemp);
 			strcpy(userMeun.status, "pre");
 			heating();
+		//count time to run reflow process
 		} else if (_conventreflowProcessTimeCounter > userMeun.perheatTime && _conventreflowProcessTimeCounter < (userMeun.reflowTime + userMeun.perheatTime) ){
 			setTemp = (double)(userMeun.reflowTemp);
 			strcpy(userMeun.status, "ref");
 			heating();
-		} else { //cooling
+			//time out of the reflow and preheat process
+		} else if(_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime){ //cooling
 			setTemp = 0;
-			userMeun.isReflowProcessing = 0;
+
+//			userMeun.isReflowProcessing = 0;
+			userMeun.meunLayer = layer_1;
 			userMeun.meunIndex = ReflowSoldering_select;
 			userMeun.meunNeedUpdate = 1;
 			TIM3->CCR1 = 0;
 			TIM3->CCR2 = 0;
 			TIM3->CCR3 = 0;
-		}
+			}
 }
 /* USER CODE END 4 */
 

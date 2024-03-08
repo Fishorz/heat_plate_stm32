@@ -59,8 +59,7 @@
 //uint8_t previousMeunIndex = 0;
 //uint8_t meunUpdateState;
 
-enum display_item meunIndex;
-enum display_layer meunLayer;
+
 extern uint8_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
@@ -184,6 +183,7 @@ void _Set_Perheat_temperature(MEUN_TypeDef *meun) {
 	HD44780_SetCursor(0, 0);
 //	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
 	HD44780_PrintStr("Perheat Temp =  ");
+	HD44780_SetCursor(0, 1);
 	itoa(meun->perheatTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
@@ -194,8 +194,10 @@ void _Set_Perheat_time(MEUN_TypeDef *meun) {
 	HD44780_SetCursor(0, 0);
 //	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
 	HD44780_PrintStr("Perheat Time =  ");
+	HD44780_SetCursor(0, 1);
 	itoa(meun->perheatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
+
 }
 
 void _Set_Reflow_temperature(MEUN_TypeDef *meun) {
@@ -204,6 +206,7 @@ void _Set_Reflow_temperature(MEUN_TypeDef *meun) {
 	HD44780_SetCursor(0, 0);
 //	HD44780_PrintStr("-XXXXXXXXXXXXXX-");
 	HD44780_PrintStr("Reflow Temp =   ");
+	HD44780_SetCursor(0, 1);
 	itoa(meun->reflowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
@@ -235,10 +238,11 @@ void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	itoa(meun->heatTime, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("N_T:");
+	HD44780_PrintStr("Now:");
 	itoa(meun->nowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
-	HD44780_SetCursor(8, 0);
+	HD44780_SetCursor(9, 0);
+	HD44780_PrintStr("tag:");
 	itoa(meun->targetTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
@@ -282,23 +286,17 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 		case layer_2:
 
 			switch (meun->meunIndex) {
-			case (ReflowSoldering_select):
-				printf("kick in to Reflow Soldering Process \r\n");
-				meun->meunIndex = Reflow_Soliding_process;
-				meun->isReflowProcessing = 1;
-				reflow_Soldering_process(meun);
-				meun->meunNeedUpdate = 1;
-				break;
 			case (Set_Perheat_temperature):
 				printf("kick in to Set_Perheat_temperature \r\n");
 				_Set_Perheat_temperature(meun);
 				break;
 			case (Set_Perheat_time):
 				printf("kick in to Set_Perheat_time \r\n");
-				_Set_Perheat_temperature(meun);
+				_Set_Perheat_time(meun);
 				break;
 			case (Set_Reflow_temperature):
 				printf("kick in to Set_Reflow_temperature \r\n");
+
 				_Set_Reflow_temperature(meun);
 				break;
 			case (Set_Reflow_time):
@@ -307,6 +305,15 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 				break;
 			}
 			break;
+
+		case layer_3:
+			if (meun->isReflowProcessing == 1) {
+				meun->meunIndex = Reflow_Soliding_process;
+				reflow_Soldering_process(meun);
+				meun->meunNeedUpdate = 1;
+			}
+			break;
+
 		default:
 			return;
 		}
@@ -391,7 +398,10 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			printf("Set reflow time -- \r\n");
 			meun->reflowTime--;
 			break;
+		default:
+			return;
 		}
+
 		meun->meunNeedUpdate = 1;
 	}
 
@@ -405,6 +415,23 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			meun->meunLayer = layer_1;
 			break;
 		default:
+			return;
+		}
+
+		if(meun->meunIndex == ReflowSoldering_select){
+			meun->isReflowProcessing = 1;
+			meun->meunLayer = layer_3;
+			meun->meunNeedUpdate = 1;
+
+			return;
+		}
+
+		if(meun->meunIndex == ReflowSoldering_select){
+
+//			meun->isReflowProcessing = 0; 	//turn off reflow process
+			meun->meunLayer = layer_1; 		//return meun to layer 1
+			meun->meunNeedUpdate = 1;
+
 			return;
 		}
 		meun->meunNeedUpdate = 1;
