@@ -55,17 +55,11 @@
 #include "encoder.h"
 #include "debug_print.h"
 
-//uint8_t meunIndex = 1;
-//uint8_t previousMeunIndex = 0;
-//uint8_t meunUpdateState;
-
-
 extern uint8_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 		int defaultPerheatTime, int defaultReflowTemp, int defaultReflowTime) {
 	meun->meunIndex = 1;
-	meun->previousMeunIndex = 0;
 	meun->meunNeedUpdate = 1;
 	meun->isReflowProcessing = 0;
 
@@ -76,6 +70,24 @@ void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 	HD44780_Init(2);
 }
 
+/*-------------------------public function------------------------------------*/
+void setReflowing(MEUN_TypeDef *meun){
+	meun->isReflowProcessing = 1;
+}
+
+void cancelReflowing(MEUN_TypeDef *meun){
+	meun->isReflowProcessing = 0;
+}
+
+void updateDisplay(MEUN_TypeDef *meun){
+	meun->meunNeedUpdate = 1;
+}
+
+void selectLayer(MEUN_TypeDef *meun, int _meunIndex){
+	meun->meunIndex = _meunIndex;
+}
+
+/*-------------------------pv function----------------------------------------*/
 void startScreeen() {
 	HD44780_NoDisplay();
 	HD44780_Cursor();
@@ -261,21 +273,21 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 			switch (meun->meunIndex) {
 			case ReflowSoldering_select:
 				first_page();
-				debug_print("in the first_page \n\r");
+//				debug_print("in the first_page \n\r");
 				break;
 			case Set_Perheat_temperature:
 			case Set_Perheat_time:
 				second_page();
-				debug_print("in the second_page \n\r");
+//				debug_print("in the second_page \n\r");
 				break;
 			case Set_Reflow_temperature:
 			case Set_Reflow_time:
 				third_page();
-				debug_print("in the third_page \n\r");
+//				debug_print("in the third_page \n\r");
 				break;
 			case Reflow_Soliding_process:
 				reflow_Soldering_process(meun);
-				debug_print("Reflow Soldering Process \n\r");
+//				debug_print("Reflow Soldering Process \n\r");
 				break;
 			default:
 				return;
@@ -407,6 +419,7 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 
 	//which meun selected
 	if (btnState()) {
+
 		switch (meun->meunLayer) {
 		case (layer_1):
 			meun->meunLayer = layer_2;
@@ -422,16 +435,13 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			meun->isReflowProcessing = 1;
 			meun->meunLayer = layer_3;
 			meun->meunNeedUpdate = 1;
-
 			return;
 		}
 
 		if(meun->meunIndex == ReflowSoldering_select){
-
-//			meun->isReflowProcessing = 0; 	//turn off reflow process
+			meun->isReflowProcessing = 0; 	//turn off reflow process
 			meun->meunLayer = layer_1; 		//return meun to layer 1
 			meun->meunNeedUpdate = 1;
-
 			return;
 		}
 		meun->meunNeedUpdate = 1;

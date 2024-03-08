@@ -12,7 +12,7 @@
 typedef struct  {   // Structure declaration
 //	uint8_t meunIndex;
 //	uint8_t meunLayer;
-	uint8_t previousMeunIndex;
+//	uint8_t previousMeunIndex;
 	uint8_t meunNeedUpdate; //is the meun need to update?
 
 	uint8_t nowTemp;
@@ -25,7 +25,8 @@ typedef struct  {   // Structure declaration
 	uint32_t reflowTime;
 
 	char status[3];
-	int8_t isReflowProcessing;
+	uint8_t isReflowProcessing;
+
 	//for display meun state
 	enum display_item{
 		welcome,
@@ -55,6 +56,12 @@ typedef struct  {   // Structure declaration
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp, int defaultPerheatTime,
 		int defaultReflowTemp, int defaultReflowTime);
+
+void setReflowing(MEUN_TypeDef *meun);
+void cancelReflowing(MEUN_TypeDef *meun);
+void updateDisplay(MEUN_TypeDef *meun);
+void selectLayer(MEUN_TypeDef *meun, int _meunIndex);
+
 void startScreeen();
 void reflowSoldering_select();
 void _PID_Auto_Tuning_wait();

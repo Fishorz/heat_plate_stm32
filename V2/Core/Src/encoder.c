@@ -67,6 +67,7 @@ void calculatEncoder() {
 }
 
 int btnState() {
+
 	int _return = 0;
 	_btnState = (GPIOB->IDR & GPIO_PIN_5)>0;
 //	HAL_Delay(50);

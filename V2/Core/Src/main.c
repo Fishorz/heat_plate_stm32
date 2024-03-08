@@ -158,6 +158,7 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 	debug_print("GPIO init OK!! \n");
 	debug_print("heaterInit OK!! \n");
+
 	meunInit(&userMeun, PREHEAT_TEMP, PREHEAT_TIME, REFLOW_TEMP, REFLOW_TIME);
 	debug_print("meunInit OK!! \n");
 	for (int i = 0; i < NUMBER_OF_HEATER; i++) {
@@ -185,26 +186,27 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+
 		selectMeunHandler(&userMeun);
 
-		if (counter % 5 == 0 && rundone) {
+		if (counter % 10 == 0 && rundone) {
 			if(userMeun.meunIndex == Reflow_Soliding_process && userMeun.isReflowProcessing == 1){
 				reflowProcess();
 			}
 		}
 
-		if (counter % 8 == 0 && rundone) {
+		if (counter % 12 == 0 && rundone) {
 			displayMeunHandler(&userMeun);
 		}
 
-		if (counter % 50 == 0 && rundone) {
+//		if (counter % 50 == 0 && rundone) {
 //			printf("userMeun.isReflowProcessing = %d \r\n", userMeun.isReflowProcessing);
 //			printf("reflowProcessTimeCounter = %lu \r\n", reflowProcessTimeCounter);
-			for(int i=0;i<3;i++){
-				printf("currentTemp %d = %3.f \r\n", i, currentTemp[i]);
-			}
-			printf("average = %d \r\n", averageCurrentTemp);
-		}
+//			for(int i=0;i<3;i++){
+//				printf("currentTemp %d = %3.f \r\n", i, currentTemp[i]);
+//			}
+//			printf("average = %d \r\n", averageCurrentTemp);
+//		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -562,12 +564,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM2) { //50ms per tick
 //		uint8_t tempFlag = &userMeun.isReflowProcessing;
+
 		if(userMeun.isReflowProcessing){
+
 			reflowProcessTimeCounter ++;
+		} else {
+			reflowProcessTimeCounter = 0;
 		}
-//		} else if(!(userMeun.isReflowProcessing)){
-//			reflowProcessTimeCounter = 0;
-//		}
 //		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
 		counter = counter > 500 ? 1 : counter + 1;
 		if (counter % 2 == 0) {
@@ -576,6 +579,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //			printf(" Reset rundone \r\n");
 		}
 	} //end timer 2 interrupt
+
+
 	if(htim->Instance==TIM3){
 		pid_counter++;
 	}
@@ -632,13 +637,14 @@ void reflowProcess(){
 			strcpy(userMeun.status, "ref");
 			heating();
 			//time out of the reflow and preheat process
+
 		} else if(_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime){ //cooling
 			setTemp = 0;
-
-//			userMeun.isReflowProcessing = 0;
+			_conventreflowProcessTimeCounter = 0;
 			userMeun.meunLayer = layer_1;
-			userMeun.meunIndex = ReflowSoldering_select;
-			userMeun.meunNeedUpdate = 1;
+			selectLayer(&userMeun, ReflowSoldering_select);
+			cancelReflowing(&userMeun);
+			updateDisplay(&userMeun);
 			TIM3->CCR1 = 0;
 			TIM3->CCR2 = 0;
 			TIM3->CCR3 = 0;
