@@ -65,7 +65,7 @@ extern uint8_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 		int defaultPerheatTime, int defaultReflowTemp, int defaultReflowTime) {
-	meun->meunIndex = 0;
+	meun->meunIndex = 1;
 	meun->previousMeunIndex = 0;
 	meun->meunNeedUpdate = 1;
 	meun->isReflowProcessing = 0;
@@ -250,7 +250,10 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 	if (meun->meunNeedUpdate) {
 		printf("Update Display \n\r");
 		meun->meunNeedUpdate = 0;
-		if (meun->meunLayer == layer_1) {
+
+		switch (meun->meunLayer) {
+		case layer_1:
+
 			switch (meun->meunIndex) {
 			case ReflowSoldering_select:
 				first_page();
@@ -274,6 +277,38 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 				return;
 			}
 			_updateCursorPosition(meun);
+			break;
+
+		case layer_2:
+
+			switch (meun->meunIndex) {
+			case (ReflowSoldering_select):
+				printf("kick in to Reflow Soldering Process \r\n");
+				meun->meunIndex = Reflow_Soliding_process;
+				meun->isReflowProcessing = 1;
+				reflow_Soldering_process(meun);
+				meun->meunNeedUpdate = 1;
+				break;
+			case (Set_Perheat_temperature):
+				printf("kick in to Set_Perheat_temperature \r\n");
+				_Set_Perheat_temperature(meun);
+				break;
+			case (Set_Perheat_time):
+				printf("kick in to Set_Perheat_time \r\n");
+				_Set_Perheat_temperature(meun);
+				break;
+			case (Set_Reflow_temperature):
+				printf("kick in to Set_Reflow_temperature \r\n");
+				_Set_Reflow_temperature(meun);
+				break;
+			case (Set_Reflow_time):
+				printf("kick in to Set_Reflow_time \r\n");
+				_Set_Reflow_time(meun);
+				break;
+			}
+			break;
+		default:
+			return;
 		}
 	}
 }
@@ -318,19 +353,43 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 		switch (meun->meunIndex) {
 		case (Set_Perheat_temperature):
 			printf("Set preheart temp ++ \r\n");
-		meun->perheatTemp++;
+			meun->perheatTemp++;
 			break;
 		case (Set_Perheat_time):
 			printf("Set preheart time ++ \r\n");
-		meun->perheatTime++;
+			meun->perheatTime++;
 			break;
 		case (Set_Reflow_temperature):
-		printf("Set reflow temp ++ \r\n");
-		meun->reflowTemp++;
+			printf("Set reflow temp ++ \r\n");
+			meun->reflowTemp++;
 			break;
 		case (Set_Reflow_time):
-		printf("Set reflow time ++ \r\n");
-		meun->reflowTime++;
+			printf("Set reflow time ++ \r\n");
+			meun->reflowTime++;
+			break;
+		default:
+			return;
+		}
+		meun->meunNeedUpdate = 1;
+	}
+
+	if (encoderState() < 0 && meun->meunLayer == layer_2) {
+		switch (meun->meunIndex) {
+		case (Set_Perheat_temperature):
+			printf("Set preheart temp -- \r\n");
+			meun->perheatTemp--;
+			break;
+		case (Set_Perheat_time):
+			printf("Set preheart time -- \r\n");
+			meun->perheatTime--;
+			break;
+		case (Set_Reflow_temperature):
+			printf("Set reflow temp -- \r\n");
+			meun->reflowTemp--;
+			break;
+		case (Set_Reflow_time):
+			printf("Set reflow time -- \r\n");
+			meun->reflowTime--;
 			break;
 		}
 		meun->meunNeedUpdate = 1;
@@ -338,40 +397,16 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 
 	//which meun selected
 	if (btnState()) {
-		if (meun->meunLayer == layer_1) {
-			switch (meun->meunIndex) {
-			case (ReflowSoldering_select):
-				printf("kick in to Reflow Soldering Process \r\n");
-				meun->meunIndex = Reflow_Soliding_process;
-				meun->isReflowProcessing = 1;
-				reflow_Soldering_process(meun);
-				meun->meunNeedUpdate = 1;
-				break;
-			case (Set_Perheat_temperature):
-				printf("kick in to Set_Perheat_temperature \r\n");
-				_Set_Perheat_temperature(meun);
-				break;
-			case (Set_Perheat_time):
-				printf("kick in to Set_Perheat_time \r\n");
-				_Set_Perheat_temperature(meun);
-				break;
-			case (Set_Reflow_temperature):
-				printf("kick in to Set_Reflow_temperature \r\n");
-				_Set_Reflow_temperature(meun);
-				break;
-			case (Set_Reflow_time):
-				printf("kick in to Set_Reflow_time \r\n");
-				_Set_Reflow_time(meun);
-				break;
-			}
+		switch (meun->meunLayer) {
+		case (layer_1):
 			meun->meunLayer = layer_2;
-			return;
-		}
-		if (meun->meunLayer == layer_2) {
-
+			break;
+		case (layer_2):
 			meun->meunLayer = layer_1;
-			meun->meunNeedUpdate = 1;
+			break;
+		default:
 			return;
 		}
+		meun->meunNeedUpdate = 1;
 	}
 }
