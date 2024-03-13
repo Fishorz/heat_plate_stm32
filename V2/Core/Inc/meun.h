@@ -24,7 +24,7 @@ typedef struct  {   // Structure declaration
 	uint16_t reflowTemp;
 	uint32_t reflowTime;
 
-	char status[3];
+	char status[5];
 	uint8_t isReflowProcessing;
 
 	//for display meun state
