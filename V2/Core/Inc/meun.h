@@ -26,6 +26,7 @@ typedef struct  {   // Structure declaration
 
 	char status[5];
 	uint8_t isReflowProcessing;
+	uint8_t isReflowDone;
 
 	//for display meun state
 	enum display_item{
@@ -40,7 +41,8 @@ typedef struct  {   // Structure declaration
 		PID_Auto_Tuning_wait,
 		PID_Auto_Tuning_OK,
 		PID_Auto_Tuning_fail,
-		Reflow_Soliding_process
+		Reflow_Soliding_process,
+		Reflow_Done
 	};
 
 	enum display_layer{
@@ -67,6 +69,7 @@ void reflowSoldering_select();
 void _PID_Auto_Tuning_wait();
 void _PID_Auto_Tuning_fail();
 void reflow_Soldering_process(MEUN_TypeDef *meun);
+void reflow_done(MEUN_TypeDef *meun);
 void displayMeunHandler(MEUN_TypeDef *meun);
 void selectMeunHandler(MEUN_TypeDef *meun);
 

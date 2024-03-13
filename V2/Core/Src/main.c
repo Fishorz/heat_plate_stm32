@@ -645,15 +645,17 @@ void reflowProcess(){
 		else if(_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime){ //cooling
 			setTemp = 0;
 			_conventreflowProcessTimeCounter = 0;
-			userMeun.meunLayer = layer_1;
-			selectLayer(&userMeun, ReflowSoldering_select);
+			userMeun.meunLayer = layer_3;
+			selectLayer(&userMeun, Reflow_Done);
 			cancelReflowing(&userMeun);
 			updateDisplay(&userMeun);
+			userMeun.isReflowDone = 1;
 			TIM3->CCR1 = 0;
 			TIM3->CCR2 = 0;
 			TIM3->CCR3 = 0;
 			}
 }
+
 /* USER CODE END 4 */
 
 /**

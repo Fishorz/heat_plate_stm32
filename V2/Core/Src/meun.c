@@ -255,9 +255,26 @@ void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	HD44780_PrintStr("Now:");
 	itoa(meun->nowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
-	HD44780_SetCursor(9, 0);
+	HD44780_SetCursor(9, 1);
 	HD44780_PrintStr("tag:");
 	itoa(meun->targetTemp, displayTemp, 10);
+	HD44780_PrintStr(displayTemp);
+}
+
+/*
+ *------------------
+ *|!!Reflow done!! |
+ *|NOW:XXX         |
+ *------------------
+ */
+void reflow_done(MEUN_TypeDef *meun) {
+	char displayTemp[10];
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("!!Reflow done!!");
+	HD44780_SetCursor(0, 1);
+	HD44780_PrintStr("Now:");
+	itoa(meun->nowTemp, displayTemp, 10);
 	HD44780_PrintStr(displayTemp);
 }
 
@@ -323,6 +340,11 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 			if (meun->isReflowProcessing == 1) {
 				meun->meunIndex = Reflow_Soliding_process;
 				reflow_Soldering_process(meun);
+				meun->meunNeedUpdate = 1;
+			}
+			if(meun->isReflowDone == 1){
+				meun->meunIndex = Reflow_Done;
+				reflow_done(meun);
 				meun->meunNeedUpdate = 1;
 			}
 			break;
@@ -445,6 +467,15 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			meun->isReflowProcessing = 0; 	//turn off reflow process
 			meun->meunLayer = layer_1; 		//return meun to layer 1
 			meun->meunIndex = ReflowSoldering_select;
+			meun->meunNeedUpdate = 1;
+
+			return;
+		}
+
+		if(meun->meunIndex == Reflow_Done && meun->isReflowDone){
+			meun->meunLayer = layer_1; 		//return meun to layer 1
+			meun->meunIndex = ReflowSoldering_select;
+			meun->isReflowDone = 0;
 			meun->meunNeedUpdate = 1;
 
 			return;
