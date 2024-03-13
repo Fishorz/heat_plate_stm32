@@ -55,7 +55,7 @@
 #include "encoder.h"
 #include "debug_print.h"
 
-extern uint8_t counter;
+extern uint16_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 		int defaultPerheatTime, int defaultReflowTemp, int defaultReflowTime) {
@@ -63,6 +63,8 @@ void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 	meun->meunNeedUpdate = 1;
 	meun->isReflowProcessing = 0;
 
+	meun->nowTemp = 0;
+	meun->targetTemp = 0;
 	meun->perheatTemp = defaultPerheatTemp;
 	meun->perheatTime = defaultPerheatTime;
 	meun->reflowTemp = defaultReflowTemp;
@@ -266,10 +268,9 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 	if (meun->meunNeedUpdate) {
 		printf("Update Display \n\r");
 		meun->meunNeedUpdate = 0;
-
 		switch (meun->meunLayer) {
 		case layer_1:
-
+			HD44780_Clear();
 			switch (meun->meunIndex) {
 			case ReflowSoldering_select:
 				first_page();
@@ -296,7 +297,7 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 			break;
 
 		case layer_2:
-
+			HD44780_Clear();
 			switch (meun->meunIndex) {
 			case (Set_Perheat_temperature):
 				printf("kick in to Set_Perheat_temperature \r\n");
@@ -419,7 +420,6 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 
 	//which meun selected
 	if (btnState()) {
-
 		switch (meun->meunLayer) {
 		case (layer_1):
 			meun->meunLayer = layer_2;
@@ -428,20 +428,25 @@ void selectMeunHandler(MEUN_TypeDef *meun) {
 			meun->meunLayer = layer_1;
 			break;
 		default:
-			return;
+
+			break;
 		}
 
-		if(meun->meunIndex == ReflowSoldering_select){
+		if(meun->meunIndex == ReflowSoldering_select && !meun->isReflowProcessing){
 			meun->isReflowProcessing = 1;
 			meun->meunLayer = layer_3;
+			meun->meunIndex = Reflow_Soliding_process;
 			meun->meunNeedUpdate = 1;
+
 			return;
 		}
 
-		if(meun->meunIndex == ReflowSoldering_select){
+		if(meun->meunIndex == Reflow_Soliding_process && meun->isReflowProcessing){
 			meun->isReflowProcessing = 0; 	//turn off reflow process
 			meun->meunLayer = layer_1; 		//return meun to layer 1
+			meun->meunIndex = ReflowSoldering_select;
 			meun->meunNeedUpdate = 1;
+
 			return;
 		}
 		meun->meunNeedUpdate = 1;

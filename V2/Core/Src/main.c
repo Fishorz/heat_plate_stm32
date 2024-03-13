@@ -189,13 +189,14 @@ int main(void)
 
 		selectMeunHandler(&userMeun);
 
-		if (counter % 10 == 0 && rundone) {
+		if (counter % 10 == 0) {
 			if(userMeun.meunIndex == Reflow_Soliding_process && userMeun.isReflowProcessing == 1){
 				reflowProcess();
 			}
 		}
 
 		if (counter % 12 == 0 && rundone) {
+
 			displayMeunHandler(&userMeun);
 		}
 
@@ -621,6 +622,7 @@ void reflowProcess(){
 		//update the temp time inf to display
 		_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
 		if(counter %50 == 0){
+
 			userMeun.nowTemp = averageCurrentTemp;
 			userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;
 			userMeun.meunNeedUpdate = 1;
@@ -632,13 +634,15 @@ void reflowProcess(){
 			strcpy(userMeun.status, "pre");
 			heating();
 		//count time to run reflow process
-		} else if (_conventreflowProcessTimeCounter > userMeun.perheatTime && _conventreflowProcessTimeCounter < (userMeun.reflowTime + userMeun.perheatTime) ){
+		}
+		else if (_conventreflowProcessTimeCounter > userMeun.perheatTime && _conventreflowProcessTimeCounter < (userMeun.reflowTime + userMeun.perheatTime) ){
 			setTemp = (double)(userMeun.reflowTemp);
 			strcpy(userMeun.status, "ref");
 			heating();
 			//time out of the reflow and preheat process
 
-		} else if(_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime){ //cooling
+		}
+		else if(_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime){ //cooling
 			setTemp = 0;
 			_conventreflowProcessTimeCounter = 0;
 			userMeun.meunLayer = layer_1;
