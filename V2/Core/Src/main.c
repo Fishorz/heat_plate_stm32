@@ -52,12 +52,13 @@ uint32_t pid_counter = 0;
 //state
 uint8_t heatdone = 0;
 uint8_t rundone = 1;
+
+float err = 0.5;
 //uint32_t reflowProcessTimeCounter = 0;
 unsigned long long reflowProcessTimeCounter = 0;
 unsigned long long _conventreflowProcessTimeCounter = 0;
 uint32_t currentTimeCounter = 0;
 uint16_t averageCurrentTemp = 0;
-float sum= 0.0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -72,13 +73,11 @@ DMA_HandleTypeDef hdma_adc1;
 I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 MEUN_TypeDef userMeun;
-PID_TypeDef pidx[3];
 NTC_TypeDef ntc0;
 
 //int list[] = {1, 2, 3};
@@ -91,7 +90,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
@@ -149,7 +147,6 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
@@ -161,18 +158,9 @@ int main(void)
 
 	meunInit(&userMeun, PREHEAT_TEMP, PREHEAT_TIME, REFLOW_TEMP, REFLOW_TIME);
 	debug_print("meunInit OK!! \n");
-	for (int i = 0; i < NUMBER_OF_HEATER; i++) {
-//		PID(&pidx[i], &currentTemp[i], &PIDOut[i],&setTemp, &pid_Kp[i], &pid_Ki[i], &pid_Kd[i], _PID_P_ON_E, _PID_CD_DIRECT);
-		setPidFactor(&pidx[i], pid_Kp[i], pid_Ki[i], pid_Kd[i]);
-//		PID_SetMode(&pidx[i], _PID_MODE_AUTOMATIC);
-//		PID_SetSampleTime(&pidx[i], 500);
-//		PID_SetOutputLimits(&pidx[i], -100, 100);
-	}
-	debug_print("PID init OK!! \n");
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 3);
 	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_TIM_Base_Start_IT(&htim3);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
@@ -407,51 +395,6 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM3_Init(void)
-{
-
-  /* USER CODE BEGIN TIM3_Init 0 */
-
-  /* USER CODE END TIM3_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM3_Init 1 */
-
-  /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 100-1;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 720-1;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-
-  /* USER CODE END TIM3_Init 2 */
-
-}
-
-/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -578,28 +521,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //			printf(" Reset rundone \r\n");
 		}
 	} //end timer 2 interrupt
-
-
-	if(htim->Instance==TIM3){
-		pid_counter++;
-	}
 }
 
 void heating(){
 //	int fti;
-
+	double sum= 0.0;
 //			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
 	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++) {
 //				printf("%d\r\n", i);
 		currentTemp[i] = calTemp(&ntc0, adcValue[i]);
 //				fti = (uint32_t) (adcValue[i]);
-
+		//set on/off of switch
 	}
-	//set duty cycle
-	TIM3->CCR1 = (PID_OutPutValue[1] / 256.0) * 30000;
-	TIM3->CCR2 = (PID_OutPutValue[2] / 256.0) * 30000;
-	TIM3->CCR3 = (PID_OutPutValue[3] / 256.0) * 30000;
-	sum = 0;
+
+	if (currentTemp[1] - setTemp < err){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+	}else{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+	}
+
+	if (currentTemp[1] - setTemp < err){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+	}else{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+	}
+
+	if (currentTemp[1] - setTemp < err){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+	}else{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	}
+
+
 	for (int i = 0; i < (sizeof(adcValue[0]) - 1); i++){
 		sum = sum + (int)(currentTemp[i]);
 	}
@@ -642,9 +595,9 @@ void reflowProcess(){
 			cancelReflowing(&userMeun);
 			updateDisplay(&userMeun);
 			userMeun.isReflowDone = 1;
-			TIM3->CCR1 = 0;
-			TIM3->CCR2 = 0;
-			TIM3->CCR3 = 0;
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
 			}
 }
 

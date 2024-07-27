@@ -15,7 +15,7 @@ typedef struct  {   // Structure declaration
 //	uint8_t previousMeunIndex;
 	uint8_t meunNeedUpdate; //is the meun need to update?
 
-	uint16_t nowTemp;
+	uint32_t nowTemp;
 	uint16_t targetTemp;
 	uint16_t heatTime;
 
