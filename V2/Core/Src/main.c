@@ -483,7 +483,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
 		counter = counter > 500 ? 1 : counter + 1;
 		if (counter % 2 == 0) {
-			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 			rundone = 1; //runreset
 //			printf(" Reset rundone \r\n");
 		}
