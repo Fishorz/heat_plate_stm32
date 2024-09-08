@@ -42,8 +42,8 @@
 //#define REFLOW_TIME 45 * 1000 //sec to ms
 #define PREHEAT_TIME 10 * 1000 //sec to ms
 #define REFLOW_TIME 5 * 1000 //sec to ms
-#define PREHEAT_TEMP 150 //°C
-#define REFLOW_TEMP 210 //°C
+#define PREHEAT_TEMP 150.0 //°C
+#define REFLOW_TEMP 210.0 //°C
 
 uint16_t counter = 0;
 uint32_t pid_counter = 0;
@@ -159,13 +159,12 @@ int main(void)
 	HAL_ADC_Start_DMA(&hadc1, adcValue, 2);
 	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim3);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	debug_print("TIM init OK!! \n");
 	debug_print("Init Done!! \n");
 
-//	__IO uint32_t *ccr[3] = {TIM3->CCR1, TIM3->CCR2, TIM3->CCR3};
-//	ccr[0] = &(TIM3->CCR1);
-//	ccr[1] = &(TIM3->CCR2);
-//	ccr[2] = &(TIM3->CCR3);
 
   /* USER CODE END 2 */
 
@@ -537,41 +536,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void heating() {
-//	int fti;
-	double sum = 0.0;
-//			printf("sizeof %u\r\n", sizeof(p_adcValue) / sizeof(p_adcValue[0]));
-	for (int i = 0; i < (sizeof(adcValue) - 1); i++) {
-//				printf("%d\r\n", i);
-		currentTemp = calTemp(&ntc0, adcValue);
-		_resistor = *&ntc0.resistor;
-		_num= getTableNum(&ntc0);
-//				fti = (uint32_t) (adcValue[i]);
-		//set on/off of switch
-	}
+
+	currentTemp = calTemp(&ntc0, adcValue);
+	_resistor = *&ntc0.resistor;
+	_num= getTableNum(&ntc0);
 
 	if (currentTemp - setTemp < err) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+		TIM3->CCR2++;
 	} else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+		TIM3->CCR2--;
 	}
-
-	if (currentTemp - setTemp < err) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	} else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-	}
-
-	if (currentTemp - setTemp < err) {
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	} else {
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-	}
-
-	for (int i = 0; i < (sizeof(adcValue) - 1); i++) {
-		sum = sum + (int) (currentTemp);
-	}
-	averageCurrentTemp = sum / 3.0;
-
 }
 
 void reflowProcess() {
@@ -581,7 +555,7 @@ void reflowProcess() {
 	_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
 	if (counter % 50 == 0) {
 
-		userMeun.nowTemp = averageCurrentTemp;
+		userMeun.nowTemp = currentTemp;
 		userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;
 		userMeun.meunNeedUpdate = 1;
 	}
@@ -600,8 +574,7 @@ void reflowProcess() {
 		heating();
 		//time out of the reflow and preheat process
 
-	} else if (_conventreflowProcessTimeCounter
-			> userMeun.reflowTime + userMeun.perheatTime) { //cooling
+	} else if (_conventreflowProcessTimeCounter > userMeun.reflowTime + userMeun.perheatTime) { //cooling
 		setTemp = 0;
 		_conventreflowProcessTimeCounter = 0;
 		userMeun.meunLayer = layer_3;
@@ -609,9 +582,7 @@ void reflowProcess() {
 		cancelReflowing(&userMeun);
 		updateDisplay(&userMeun);
 		userMeun.isReflowDone = 1;
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+		TIM3->CCR2 = 0;
 	}
 }
 
