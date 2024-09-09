@@ -246,7 +246,7 @@ void reflow_Soldering_process(MEUN_TypeDef *meun) {
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("step:");
-	HD44780_PrintStr(&(meun->status));
+	HD44780_PrintStr((meun->status));
 	HD44780_SetCursor(8, 0); //Time from start soldering
 	HD44780_PrintStr("Time:");
 	itoa(meun->heatTime, displayTemp, 10);

@@ -27,7 +27,6 @@
 #include <string.h>
 //#include "heater.h"
 #include "NTCtempSensor.h"
-#include "pid.h"
 #include "debug_print.h"
 /* USER CODE END Includes */
 
@@ -156,7 +155,7 @@ int main(void)
 
 	meunInit(&userMeun, PREHEAT_TEMP, PREHEAT_TIME, REFLOW_TEMP, REFLOW_TIME);
 	debug_print("meunInit OK!! \n");
-	HAL_ADC_Start_DMA(&hadc1, adcValue, 2);
+	HAL_ADC_Start_DMA(&hadc1, &adcValue, 1);
 	debug_print("ADC DMA init OK!! \n");
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_Base_Start_IT(&htim3);
