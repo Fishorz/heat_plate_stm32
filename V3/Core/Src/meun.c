@@ -1,0 +1,124 @@
+/*
+ * meun.c
+ *
+ *  Created on: Sep 09, 2024
+ *      Author: sky.chu
+ */
+
+/*
+ preview
+ Start Page->
+ In standby
+ ------------------
+ |Standby  		  |
+ |N_T:XXX  S_T:XXX|
+ ------------------
+
+ In Heating
+ ------------------
+ |Heating  		  |
+ |N_T:XXX  S_T:XXX|
+ ------------------
+
+
+ */
+#include <meun.h>
+#include "encoder.h"
+
+extern uint16_t counter;
+
+void meunInit(MEUN_TypeDef *meun, int defaultTemp) {
+	meun->meunNeedUpdate = 1;
+	meun->nowTemp = 0;
+	meun->targetTemp = defaultTemp;
+	HD44780_Init(2);
+}
+
+/*-------------------------public function------------------------------------*/
+
+/*-------------------------pv function----------------------------------------*/
+void startScreeen(MEUN_TypeDef *meun) {
+	HD44780_NoDisplay();
+	HD44780_Cursor();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("HELLO STM32!!!");
+	HD44780_PrintSpecialChar(0);
+}
+
+void standby_page(MEUN_TypeDef *meun) {
+	char displayNowTemp[10];
+	char displayTargetTemp[10];
+	itoa(meun->nowTemp, displayNowTemp, 10);
+	itoa(meun->targetTemp, displayTargetTemp, 10);
+	HD44780_SetCursor(1, 0);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("Standby        ");
+	HD44780_SetCursor(1, 1);
+	HD44780_PrintStr("N_T:");
+	HD44780_SetCursor(6, 1);
+	HD44780_PrintStr(displayNowTemp);
+	HD44780_SetCursor(10, 1);
+	HD44780_PrintStr("S_T:");
+	HD44780_SetCursor(14, 1);
+	HD44780_PrintStr(displayTargetTemp);
+}
+
+void heating_page(MEUN_TypeDef *meun) {
+	char displayNowTemp[10];
+	char displayTargetTemp[10];
+	itoa(meun->nowTemp, displayNowTemp, 10);
+	itoa(meun->targetTemp, displayTargetTemp, 10);
+	HD44780_SetCursor(1, 0);
+//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+	HD44780_PrintStr("Heating        ");
+	HD44780_SetCursor(1, 1);
+	HD44780_PrintStr("N_T:");
+	HD44780_SetCursor(6, 1);
+	HD44780_PrintStr(displayNowTemp);
+	HD44780_SetCursor(10, 1);
+	HD44780_PrintStr("S_T:");
+	HD44780_SetCursor(14, 1);
+	HD44780_PrintStr(displayTargetTemp);
+}
+
+//To control what should displaying
+void displayMeunHandler(MEUN_TypeDef *meun) {
+	//*_*hard code update state to Ldisplay something
+
+	if (meun->meunNeedUpdate) {
+		meun->meunNeedUpdate = 0;
+		HD44780_Clear();
+		switch (meun->meunIndex) {
+		case Standby:
+			standby_page(meun);
+			break;
+		case Heating:
+			heating_page(meun);
+			break;
+		default:
+			return;
+		}
+	}
+}
+
+void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
+	/*
+	 * Standby
+	 * Start Heating
+	 */
+	//which meun selected
+	if (btnState(encoder)) {
+		switch (meun->meunIndex) {
+		case (Standby):
+			meun->meunIndex = Heating;
+			meun->meunNeedUpdate = 1;
+			break;
+		case (Heating):
+			meun->meunIndex = Standby;
+			meun->meunNeedUpdate = 1;
+			break;
+		default:
+			break;
+		}
+	}
+}

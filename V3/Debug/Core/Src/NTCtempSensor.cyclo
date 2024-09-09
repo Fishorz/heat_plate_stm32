@@ -1,0 +1,3 @@
+../Core/Src/NTCtempSensor.c:22:6:adcSelect	1
+../Core/Src/NTCtempSensor.c:30:5:getTableNum	3
+../Core/Src/NTCtempSensor.c:40:7:calTemp	2
