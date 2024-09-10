@@ -89,6 +89,9 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 		meun->meunNeedUpdate = 0;
 		HD44780_Clear();
 		switch (meun->meunIndex) {
+		case welcome:
+			standby_page(meun);
+			break;
 		case Standby:
 			standby_page(meun);
 			break;

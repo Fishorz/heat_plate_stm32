@@ -107,11 +107,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
+	meunInit(&meun, 150);
 	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		displayMeunHandler(&meun);
 	}
   /* USER CODE END 3 */
 }
@@ -169,7 +170,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM2) { //50ms per tick
 		counter = counter > 500? 1 : counter + 1;
 	}
-	if (counter % 2 == 0){
+	if (counter % 50 == 0){
 		HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
 	}
 }
