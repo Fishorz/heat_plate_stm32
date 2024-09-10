@@ -7,6 +7,15 @@
 
 #include "encoder.h"
 
+ENCODER_TypeDef encoder = {
+	.pinA;
+	.pinB;
+	.state;
+	.encoderCounter;
+	.lastBtnState;
+	.btnState;
+};
+
 void encoderInt(ENCODER_TypeDef *encoder) {
 	encoder->state = 0;
 	encoder->encoderCounter = 0;

@@ -23,6 +23,15 @@ typedef struct{
 	uint8_t _btnState;
 }ENCODER_TypeDef;
 
+//ENCODER_TypeDef encoder = {
+//	.pinA;
+//	.pinB;
+//	.state;
+//	.encoderCounter;
+//	.lastBtnState;
+//	.btnState;
+//};
+
 int btnState(ENCODER_TypeDef *encoder);
 int encoderState(ENCODER_TypeDef *encoder);
 void calculatEncoder(ENCODER_TypeDef *encoder);
