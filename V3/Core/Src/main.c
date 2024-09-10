@@ -52,6 +52,7 @@ uint32_t counter = 0;
 uint8_t _isDisplayTheWellcome;
 MEUN_TypeDef meun;
 NTC_TypeDef ntc;
+ENCODER_TypeDef encoder;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,6 +114,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		displayMeunHandler(&meun);
+		selectMeunHandler(&meun,&encoder);
 	}
   /* USER CODE END 3 */
 }
