@@ -62,6 +62,7 @@ void calculatEncoder() {
 	case (0b1101):
 	case (0b0100):
 		encoderCounter--;
+
 		break;
 	}
 }

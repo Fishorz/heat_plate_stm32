@@ -24,8 +24,10 @@
  */
 #include <meun.h>
 #include "encoder.h"
+#include "main.h"
+#include "config.h"
 
-extern uint16_t counter;
+//extern uint16_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultTemp) {
 	meun->meunNeedUpdate = 1;
@@ -110,6 +112,23 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 	 * Start Heating
 	 */
 	//which meun selected
+
+	if(encoderState(encoder) > 0 ){
+
+		meun->targetTemp++;
+	}
+    if (encoderState(encoder) <= -1){
+
+		meun->targetTemp--;
+	}
+
+	if(meun->targetTemp > MAX_TEMP){
+		meun->targetTemp = MAX_TEMP;
+	}else if(meun->targetTemp < MIN_TEMP){
+		meun->targetTemp = MIN_TEMP;
+	}
+
+
 	if (btnState(encoder)) {
 		switch (meun->meunIndex) {
 		case (Standby):
@@ -125,3 +144,4 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 		}
 	}
 }
+

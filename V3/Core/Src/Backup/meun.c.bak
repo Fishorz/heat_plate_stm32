@@ -24,8 +24,9 @@
  */
 #include <meun.h>
 #include "encoder.h"
+#include "main.h"
 
-extern uint16_t counter;
+//extern uint16_t counter;
 
 void meunInit(MEUN_TypeDef *meun, int defaultTemp) {
 	meun->meunNeedUpdate = 1;
@@ -86,11 +87,11 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 	//*_*hard code update state to Ldisplay something
 
 	if (meun->meunNeedUpdate) {
-		meun->meunNeedUpdate = 0;
+		meun->meunNeedUpdate = 1;
 		HD44780_Clear();
 		switch (meun->meunIndex) {
 		case welcome:
-			standby_page(meun);
+			startScreeen(meun);
 			break;
 		case Standby:
 			standby_page(meun);
@@ -110,6 +111,20 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 	 * Start Heating
 	 */
 	//which meun selected
+
+	if(encoderState(encoder) <0){
+		meun->meunIndex --;
+	} if (encoderState(encoder) >0){
+		meun->meunIndex ++;
+	}
+
+	if(meun->meunIndex >3){
+		meun->meunIndex = 3;
+	}
+	if(meun->meunIndex <2){
+		meun->meunIndex =2;
+	}
+
 	if (btnState(encoder)) {
 		switch (meun->meunIndex) {
 		case (Standby):
@@ -125,3 +140,4 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 		}
 	}
 }
+

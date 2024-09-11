@@ -65,10 +65,6 @@ void Error_Handler(void);
 #define SIGNAL_GPIO_Port GPIOB
 #define encoderBtn_Pin GPIO_PIN_5
 #define encoderBtn_GPIO_Port GPIOB
-#define encoderPinB_Pin GPIO_PIN_6
-#define encoderPinB_GPIO_Port GPIOB
-#define encoderPinA_Pin GPIO_PIN_7
-#define encoderPinA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

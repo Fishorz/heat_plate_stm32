@@ -1,4 +1,0 @@
-../Core/Src/encoder.c:10:6:encoderInt	1
-../Core/Src/encoder.c:17:6:calculatEncoder	4
-../Core/Src/encoder.c:38:5:btnState	3
-../Core/Src/encoder.c:52:5:encoderState	3

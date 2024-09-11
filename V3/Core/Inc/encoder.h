@@ -17,8 +17,10 @@
 typedef struct{
 	uint8_t pinA;
 	uint8_t pinB;
+	uint8_t pinBtn;
 	uint8_t state;
-	int8_t encoderCounter;
+	uint8_t encoderCounter;
+	uint8_t lastEncoderCounter;
 	uint8_t _lastBtnState;
 	uint8_t _btnState;
 }ENCODER_TypeDef;
@@ -34,6 +36,6 @@ typedef struct{
 
 int btnState(ENCODER_TypeDef *encoder);
 int encoderState(ENCODER_TypeDef *encoder);
-void calculatEncoder(ENCODER_TypeDef *encoder);
+//void calculatEncoder(ENCODER_TypeDef *encoder);
 
 #endif /* INC_ENCODER_H_ */

@@ -109,6 +109,8 @@ uint32_t adcValue;
 uint32_t CCR;
 long double _resistor;
 uint16_t _num;
+uint8_t T_pinA;
+uint8_t T_pinB;
 
 
 /* USER CODE END 0 */
@@ -172,7 +174,8 @@ int main(void)
 	while (1) {
 
 		selectMeunHandler(&userMeun);
-
+		T_pinA = GPIOB->IDR & GPIO_PIN_7;
+		T_pinB = GPIOB->IDR & GPIO_PIN_8;
 		if (counter % 10 == 0) {
 			if (userMeun.meunIndex == Reflow_Soliding_process
 					&& userMeun.isReflowProcessing == 1) {
@@ -527,7 +530,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
 		counter = counter > 500 ? 1 : counter + 1;
 		if (counter % 2 == 0) {
-			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
+			HAL_GPIO_TogglePin(SIGNAL_GPIO_Port, SIGNAL_Pin);
 			rundone = 1; //runreset
 //			printf(" Reset rundone \r\n");
 		}
