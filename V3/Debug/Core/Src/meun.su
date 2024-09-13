@@ -1,0 +1,6 @@
+../Core/Src/meun.c:32:6:meunInit	16	static
+../Core/Src/meun.c:42:6:startScreeen	16	static
+../Core/Src/meun.c:50:6:standby_page	40	static
+../Core/Src/meun.c:68:6:heating_page	40	static
+../Core/Src/meun.c:87:6:displayMeunHandler	16	static
+../Core/Src/meun.c:109:6:selectMeunHandler	16	static

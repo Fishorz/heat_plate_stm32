@@ -39,7 +39,6 @@ NTC_TypeDef ntc;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,6 +52,7 @@ NTC_TypeDef ntc;
 uint32_t counter = 0;
 uint8_t _isDisplayTheWellcome;
 int encoder_State = 0;
+int lastEncoder_State = 0;
 int Btn_state = 0;
 /* USER CODE END PV */
 
@@ -117,11 +117,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		displayMeunHandler(&meun);
-		selectMeunHandler(&meun,&encoder);
-		encoder_State = (TIM4->CNT)>>2;
-		Btn_state = HAL_GPIO_ReadPin(encoderBtn_GPIO_Port, encoderBtn_Pin);
-//		meun->meunIndex = x;
+		//encoder_State = (TIM4->CNT) >> 2;
+			displayMeunHandler(&meun);
+			selectMeunHandler(&meun, &encoder);
+
+
+		if (counter % 50 == 0) {
+			HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
+		}
 	}
   /* USER CODE END 3 */
 }
@@ -145,7 +148,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -160,12 +163,12 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -177,11 +180,9 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM2) { //50ms per tick
-		counter = counter > 500? 1 : counter + 1;
+		counter = counter > 500 ? 1 : counter + 1;
 	}
-	if (counter % 50 == 0){
-		HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
-	}
+
 }
 
 /* USER CODE END 4 */
