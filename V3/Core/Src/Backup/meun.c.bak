@@ -112,10 +112,10 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 	 * Start Heating
 	 */
 	//which meun selected
-	if (encoderState(encoder) == 1) {
+	if (encoderState(encoder) == 2) {
 
 		meun->targetTemp++;
-	} else if (encoderState(encoder) == 2) {
+	} else if (encoderState(encoder) == 1) {
 
 		meun->targetTemp--;
 	}
