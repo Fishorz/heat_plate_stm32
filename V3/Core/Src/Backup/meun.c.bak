@@ -31,6 +31,7 @@
 
 void meunInit(MEUN_TypeDef *meun, int defaultTemp) {
 	meun->meunNeedUpdate = 1;
+	meun->meunIndex = Standby;
 	meun->nowTemp = 0;
 	meun->targetTemp = defaultTemp;
 	HD44780_Init(2);
@@ -88,12 +89,12 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 	//*_*hard code update state to Ldisplay something
 
 	if (meun->meunNeedUpdate) {
-		meun->meunNeedUpdate = 1;
+		meun->meunNeedUpdate = 0;
 		HD44780_Clear();
 		switch (meun->meunIndex) {
-		case welcome:
-			startScreeen(meun);
-			break;
+//		case welcome:
+//			startScreeen(meun);
+//			break;
 		case Standby:
 			standby_page(meun);
 			break;

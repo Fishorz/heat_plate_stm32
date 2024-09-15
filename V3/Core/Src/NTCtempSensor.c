@@ -1,11 +1,5 @@
 #include "NTCtempSensor.h"
 
-//y=0.111x+264.262
-//y=resistor x=temp
-
-//const uint32_t ADC_CHANNEL[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
-const double c1 = 0.7418740748e-3, c2 = 2.111100970e-4, c3 = 1.190343927e-7;
-
 //-40 ~ +300 ℃ /5
 // in k ohm x.xxx
 //1 = -40
@@ -43,6 +37,7 @@ float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 
 //cal resistor
 	float voltage = 0.0;
+	// 3.3V is mcu voltage
 	voltage = (uNTC->_NTC_adcvalue / 4096.0) * 3.3;
 	uNTC->resistor = (refenceResistor * 1.0 * voltage)
 			/ (supplyVoltage * 1.0 - (voltage));

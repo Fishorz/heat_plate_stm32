@@ -126,14 +126,14 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		//encoder_State = (TIM4->CNT) >> 2;
-			displayMeunHandler(&meun);
-			selectMeunHandler(&meun, &encoder);
+
+//			selectMeunHandler(&meun, &encoder);
 
 		if (counter % 50 == 0) {
-			HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
+			displayMeunHandler(&meun);
 		}
 
-		if(counter %33 == 0){
+		if(counter % 20 == 0){
 			currentTemp = calTemp(&ntc0, adcValue);
 			_resistor = *&ntc0.resistor;
 			_num= getTableNum(&ntc0);
@@ -194,6 +194,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM2) { //50ms per tick
 		counter = counter > 500 ? 1 : counter + 1;
+		HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
 	}
 
 }
