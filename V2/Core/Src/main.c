@@ -44,7 +44,7 @@
 #define PREHEAT_TEMP 150.0 //°C
 #define REFLOW_TEMP 210.0 //°C
 
-uint16_t counter = 0;
+uint16_t counter_TM2 = 0;
 uint32_t pid_counter = 0;
 
 //state
@@ -176,14 +176,14 @@ int main(void)
 		selectMeunHandler(&userMeun);
 		T_pinA = GPIOB->IDR & GPIO_PIN_7;
 		T_pinB = GPIOB->IDR & GPIO_PIN_8;
-		if (counter % 10 == 0) {
+		if (counter_TM2 % 10 == 0) {
 			if (userMeun.meunIndex == Reflow_Soliding_process
 					&& userMeun.isReflowProcessing == 1) {
 				reflowProcess();
 			}
 		}
 
-		if (counter % 12 == 0 && rundone) {
+		if (counter_TM2 % 12 == 0 && rundone) {
 
 			displayMeunHandler(&userMeun);
 		}
@@ -528,8 +528,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			reflowProcessTimeCounter = 0;
 		}
 //		reflowProcessTimeCounter = &userMeun.isReflowProcessing > 0 ? 0 : reflowProcessTimeCounter + 1;
-		counter = counter > 500 ? 1 : counter + 1;
-		if (counter % 2 == 0) {
+		counter_TM2 = counter_TM2 > 500 ? 1 : counter_TM2 + 1;
+		if (counter_TM2 % 2 == 0) {
 			HAL_GPIO_TogglePin(SIGNAL_GPIO_Port, SIGNAL_Pin);
 			rundone = 1; //runreset
 //			printf(" Reset rundone \r\n");
@@ -555,7 +555,7 @@ void reflowProcess() {
 
 	//update the temp time inf to display
 	_conventreflowProcessTimeCounter = reflowProcessTimeCounter * 20; //sys is 50Hz so one tick is 20ms
-	if (counter % 50 == 0) {
+	if (counter_TM2 % 50 == 0) {
 
 		userMeun.nowTemp = currentTemp;
 		userMeun.heatTime = _conventreflowProcessTimeCounter / 1000.0;

@@ -49,10 +49,11 @@ NTC_TypeDef ntc0;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t counter = 0;
+uint32_t counter_TM2 = 0;
+uint32_t counter_TM3 = 0;
 uint8_t _isDisplayTheWellcome;
 
-double currentTemp;
+int16_t currentTemp;
 long double _resistor;
 uint16_t _num;
 uint32_t adcValue;
@@ -129,15 +130,23 @@ int main(void)
 
 		selectMeunHandler(&meun, &encoder);
 
-		if (counter % 50 == 0) {
+		if (counter_TM2 % 50 == 0) {
 			displayMeunHandler(&meun);
 		}
 
-		if(counter % 20 == 0){
+		if(counter_TM2 % 20 == 0){
 			currentTemp = calTemp(&ntc0, adcValue);
-			_resistor = *&ntc0.resistor;
-			_num= getTableNum(&ntc0);
+//			_resistor = *&ntc0.resistor;
+//			_num= getTableNum(&ntc0);
+			if(meun.nowTemp != currentTemp)
+			meun.nowTemp = currentTemp;
+			meun.meunNeedUpdate = 1;
 		}
+		if(meun.nowTemp > 100){
+			TIM3->CCR1 = 199;
+		}
+
+
 	}
   /* USER CODE END 3 */
 }
@@ -193,8 +202,12 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM2) { //50ms per tick
-		counter = counter > 500 ? 1 : counter + 1;
+		counter_TM2 = counter_TM2 > 500 ? 1 : counter_TM2 + 1;
 		HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
+	}
+
+	if (htim->Instance == TIM3) { //50ms per tick
+		counter_TM3 = counter_TM3 > 500 ? 1 : counter_TM3 + 1;
 	}
 
 }

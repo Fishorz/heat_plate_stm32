@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "meun.h"
 #include"NTCtempSensor.h"
+#include "heating.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,6 +36,7 @@
 ENCODER_TypeDef encoder;
 MEUN_TypeDef meun;
 NTC_TypeDef ntc0;
+HEATING_TypeDef heating;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -49,13 +51,15 @@ NTC_TypeDef ntc0;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t counter = 0;
+uint32_t counter_TM2 = 0;
+uint32_t counter_TM3 = 0;
 uint8_t _isDisplayTheWellcome;
 
-double currentTemp;
+int16_t currentTemp;
 long double _resistor;
 uint16_t _num;
 uint32_t adcValue;
+uint8_t err = 3;
 
 int encoder_State = 0;
 int lastEncoder_State = 0;
@@ -115,6 +119,7 @@ int main(void)
 	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 	HAL_ADC_Start_DMA(&hadc1, &adcValue, 1);
 	meunInit(&meun, 150);
+	init_pid(&heating);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,17 +134,34 @@ int main(void)
 
 		selectMeunHandler(&meun, &encoder);
 
-		if (counter % 50 == 0) {
+		if (counter_TM2 % 50 == 0) {
 			displayMeunHandler(&meun);
 		}
 
-		if(counter % 20 == 0){
+		if(counter_TM2 % 20 == 0){
 			currentTemp = calTemp(&ntc0, adcValue);
-			_resistor = *&ntc0.resistor;
-			_num= getTableNum(&ntc0);
+//			_resistor = *&ntc0.resistor;
+//			_num= getTableNum(&ntc0);
+			if(meun.nowTemp != currentTemp)
 			meun.nowTemp = currentTemp;
 			meun.meunNeedUpdate = 1;
 		}
+
+		if(meun.nowTemp > 50){
+			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, SET);
+		} else {
+			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
+		}
+
+		if(counter_TM3 % 10 == 0){
+			if(meun.meunIndex == Heating){
+				cal_pid(&heating, meun.nowTemp, meun.targetTemp);
+				TIM3->CCR2 = heating.pwm_duty;
+			} else {
+				TIM3->CCR2 = 0;
+			}
+		}
+
 	}
   /* USER CODE END 3 */
 }
@@ -195,8 +217,12 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	if (htim->Instance == TIM2) { //50ms per tick
-		counter = counter > 500 ? 1 : counter + 1;
+		counter_TM2 = counter_TM2 > 500 ? 1 : counter_TM2 + 1;
 		HAL_GPIO_TogglePin(GPIOB, SIGNAL_Pin);
+	}
+
+	if (htim->Instance == TIM3) { //50ms per tick
+		counter_TM3 = counter_TM3 > 500 ? 1 : counter_TM3 + 1;
 	}
 
 }

@@ -56,13 +56,13 @@ void standby_page(MEUN_TypeDef *meun) {
 	HD44780_SetCursor(1, 0);
 //	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
 	HD44780_PrintStr("Standby        ");
-	HD44780_SetCursor(1, 1);
+	HD44780_SetCursor(0, 1);
 	HD44780_PrintStr("N_T:");
-	HD44780_SetCursor(6, 1);
+	HD44780_SetCursor(5, 1);
 	HD44780_PrintStr(displayNowTemp);
-	HD44780_SetCursor(10, 1);
+	HD44780_SetCursor(9, 1);
 	HD44780_PrintStr("S_T:");
-	HD44780_SetCursor(14, 1);
+	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
 }
 
@@ -71,16 +71,16 @@ void heating_page(MEUN_TypeDef *meun) {
 	char displayTargetTemp[10];
 	itoa(meun->nowTemp, displayNowTemp, 10);
 	itoa(meun->targetTemp, displayTargetTemp, 10);
-	HD44780_SetCursor(1, 0);
+	HD44780_SetCursor(0, 0);
 //	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
 	HD44780_PrintStr("Heating        ");
-	HD44780_SetCursor(1, 1);
+	HD44780_SetCursor(0, 1);
 	HD44780_PrintStr("N_T:");
-	HD44780_SetCursor(6, 1);
+	HD44780_SetCursor(5, 1);
 	HD44780_PrintStr(displayNowTemp);
-	HD44780_SetCursor(10, 1);
+	HD44780_SetCursor(9, 1);
 	HD44780_PrintStr("S_T:");
-	HD44780_SetCursor(14, 1);
+	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
 }
 
@@ -116,9 +116,11 @@ void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder) {
 	if (encoderState(encoder) == 2) {
 
 		meun->targetTemp++;
+		meun->meunNeedUpdate = 1;
 	} else if (encoderState(encoder) == 1) {
 
 		meun->targetTemp--;
+		meun->meunNeedUpdate = 1;
 	}
 
 	if (meun->targetTemp > MAX_TEMP) {

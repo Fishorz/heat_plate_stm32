@@ -55,7 +55,7 @@
 #include "encoder.h"
 #include "debug_print.h"
 
-extern uint16_t counter;
+extern uint16_t counter_TM2;
 
 void meunInit(MEUN_TypeDef *meun, int defaultPerheatTemp,
 		int defaultPerheatTime, int defaultReflowTemp, int defaultReflowTime) {
@@ -147,7 +147,7 @@ void _updateCursorPosition(MEUN_TypeDef *meun) {
 }
 
 void _PID_Auto_Tuning_wait() {
-	uint8_t _waitState = counter % 100;
+	uint8_t _waitState = counter_TM2 % 100;
 	HD44780_Clear();
 	HD44780_SetCursor(0, 0);
 	HD44780_PrintStr("PID Auto Tuning");
