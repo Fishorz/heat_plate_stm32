@@ -37,6 +37,7 @@ float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 
 //cal resistor
 	float voltage = 0.0;
+	// 3.3V is mcu voltage
 	voltage = (uNTC->_NTC_adcvalue / 4096.0) * 3.3;
 	uNTC->resistor = (refenceResistor * 1.0 * voltage)
 			/ (supplyVoltage * 1.0 - (voltage));

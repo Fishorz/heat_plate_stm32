@@ -125,9 +125,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		//encoder_State = (TIM4->CNT) >> 2;
+//		encoder_State = (TIM4->CNT) >> 2;
 
-//			selectMeunHandler(&meun, &encoder);
+		selectMeunHandler(&meun, &encoder);
 
 		if (counter % 50 == 0) {
 			displayMeunHandler(&meun);
@@ -137,6 +137,8 @@ int main(void)
 			currentTemp = calTemp(&ntc0, adcValue);
 			_resistor = *&ntc0.resistor;
 			_num= getTableNum(&ntc0);
+			meun.nowTemp = currentTemp;
+			meun.meunNeedUpdate = 1;
 		}
 	}
   /* USER CODE END 3 */
