@@ -114,7 +114,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 	HAL_ADC_Start_DMA(&hadc1, &adcValue, 1);
@@ -156,7 +155,7 @@ int main(void)
 		if(counter_TM3 % 10 == 0){
 			if(meun.meunIndex == Heating){
 				cal_pid(&heating, meun.nowTemp, meun.targetTemp);
-				TIM3->CCR2 = heating.pwm_duty;
+				TIM3->CCR2 = heating.pwm_duty / 2;
 			} else {
 				TIM3->CCR2 = 0;
 			}
