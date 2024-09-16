@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "meun.h"
 #include"NTCtempSensor.h"
+#include "heating.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,6 +36,7 @@
 ENCODER_TypeDef encoder;
 MEUN_TypeDef meun;
 NTC_TypeDef ntc0;
+HEATING_TypeDef heating;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -57,6 +59,7 @@ int16_t currentTemp;
 long double _resistor;
 uint16_t _num;
 uint32_t adcValue;
+uint8_t err = 3;
 
 int encoder_State = 0;
 int lastEncoder_State = 0;
@@ -111,11 +114,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 	HAL_ADC_Start_DMA(&hadc1, &adcValue, 1);
 	meunInit(&meun, 150);
+	init_pid(&heating);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -142,10 +145,21 @@ int main(void)
 			meun.nowTemp = currentTemp;
 			meun.meunNeedUpdate = 1;
 		}
-		if(meun.nowTemp > 100){
-			TIM3->CCR1 = 199;
+
+		if(meun.nowTemp > 50){
+			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, SET);
+		} else {
+			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
 		}
 
+		if(counter_TM3 % 10 == 0){
+			if(meun.meunIndex == Heating){
+				cal_pid(&heating, meun.nowTemp, meun.targetTemp);
+				TIM3->CCR2 = heating.pwm_duty / 2;
+			} else {
+				TIM3->CCR2 = 0;
+			}
+		}
 
 	}
   /* USER CODE END 3 */
