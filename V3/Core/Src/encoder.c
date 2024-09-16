@@ -64,18 +64,15 @@ int encoderState(ENCODER_TypeDef *encoder) {
 //	calculatEncoder(encoder);
 	encoder->encoderCounter = (TIM4->CNT) >> 2;
 //	int _return;
+	if (encoder->encoderCounter != encoder->lastEncoderCounter) {
+		if (encoder->encoderCounter - encoder->lastEncoderCounter > 0) {
+			encoder->lastEncoderCounter = encoder->encoderCounter;
+			return 1;
+		} else if (encoder->encoderCounter - encoder->lastEncoderCounter < 0) {
+			encoder->lastEncoderCounter = encoder->encoderCounter;
 
-	if (encoder->encoderCounter > encoder->lastEncoderCounter) {
-		encoder->lastEncoderCounter = encoder->encoderCounter;
-
-		return (1);
-
-	} else if (encoder->encoderCounter < encoder->lastEncoderCounter) {
-		encoder->lastEncoderCounter = encoder->encoderCounter;
-
-		return (2);
-	} else {
-		return (0);
+			return -1;
+		}
 	}
-//	return (_return);
+	return (0);
 }
