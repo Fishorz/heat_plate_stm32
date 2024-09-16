@@ -14,6 +14,11 @@ void cal_pid(HEATING_TypeDef *heating, uint32_t nowTemp, uint32_t targetTemp){
 	heating->error  =  targetTemp - nowTemp;
 	heating->integralError += heating->error + heating->previousError;
 	heating->derivative = (heating->error - heating->previousError)/heating->dt;
+
+	heating->P = heating->Kp * heating->error;
+	heating->I = heating->Ki * heating->integralError * (heating->dt/2.0);
+	heating->D = heating->Kd * heating->derivative;
+
 	heating->uPid = heating->P + heating->I + heating->D;
 
 	if(heating->uPid > 1.0)
@@ -24,7 +29,7 @@ void cal_pid(HEATING_TypeDef *heating, uint32_t nowTemp, uint32_t targetTemp){
 		{
 			heating->uPid = 0.0;
 		}
-		float duty = heating->uPid * 1000.0;
+		float duty = heating->uPid * 200.0;
 		heating->pwm_duty = (int) duty;
 		heating->previousError = heating->error;
 }
