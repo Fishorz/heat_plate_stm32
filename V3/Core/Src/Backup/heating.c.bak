@@ -21,9 +21,9 @@ void cal_pid(HEATING_TypeDef *heating, uint32_t nowTemp, uint32_t targetTemp){
 
 	heating->uPid = heating->P + heating->I + heating->D;
 
-	if(heating->uPid > 1.0)
+	if(heating->uPid > 0.8)
 		{
-		heating->uPid = 1.0;
+		heating->uPid = 0.8;
 		}
 		if(heating->uPid < 0.0)
 		{
