@@ -41,7 +41,7 @@ typedef struct {
 }HEATING_TypeDef;
 
 void init_pid(HEATING_TypeDef *heating);
-void cal_pid(HEATING_TypeDef *heating, uint32_t nowTemp, uint32_t targetTemp);
+void cal_pid(HEATING_TypeDef *heating, float nowTemp, int32_t targetTemp);
 
 
 #endif /*__ GPIO_H__ */
