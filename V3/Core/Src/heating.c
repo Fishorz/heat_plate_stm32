@@ -9,7 +9,7 @@ void init_pid(HEATING_TypeDef *heating){
 	heating->dt = 0.1f;
 }
 
-void cal_pid(HEATING_TypeDef *heating, int32_t nowTemp, int32_t targetTemp){
+void cal_pid(HEATING_TypeDef *heating, float nowTemp, int32_t targetTemp){
 
 	heating->error  =  targetTemp - nowTemp;
 	heating->integralError += heating->error + heating->previousError;
