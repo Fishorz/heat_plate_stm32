@@ -20,8 +20,8 @@
 #include <meun.h>
 
 #define PID_KP 0.1
-#define PID_KI 0.1
-#define PID_KD 0.1
+#define PID_KI 0.0
+#define PID_KD 0.0
 #define PID_DT 0.1
 
 typedef struct {

@@ -56,7 +56,7 @@ uint32_t counter_TM2 = 0;
 uint32_t counter_TM3 = 0;
 uint8_t _isDisplayTheWellcome;
 
-int16_t currentTemp;
+float currentTemp;
 long double _resistor;
 uint16_t _num;
 uint32_t adcValue;
@@ -142,7 +142,7 @@ int main(void)
 			currentTemp = calTemp(&ntc0, adcValue);
 //			_resistor = *&ntc0.resistor;
 //			_num= getTableNum(&ntc0);
-			if(meun.nowTemp != currentTemp)
+			if(meun.nowTemp != (int)currentTemp)
 			meun.nowTemp = currentTemp;
 			meun.meunNeedUpdate = 1;
 		}
@@ -155,9 +155,10 @@ int main(void)
 
 		if(counter_TM3 % 10 == 0){
 			if(meun.meunIndex == Heating){
-				cal_pid(&heating, meun.nowTemp, meun.targetTemp);
+				cal_pid(&heating, currentTemp, meun.targetTemp);
 				TIM3->CCR2 = heating.pwm_duty;
 			} else {
+				heating.pwm_duty = 0;
 				TIM3->CCR2 = 0;
 			}
 		}
