@@ -7,7 +7,7 @@
 //3 = -30
 static uint32_t ntc3960_100k[] = { 3283068, 2364601, 1728310, 1279210, 957158,
 		723060, 550905, 423023, 327187, 254804, 199749, 157602, 125142, 100000,
-		80419, 65087, 53020, 43473, 35882, 2968.8, 24713, 20657, 17345, 14628,
+		80419, 65087, 53020, 43473, 35882, 296898, 24713, 20657, 17345, 14628,
 		12386, 10530, 8985, 7694, 6610, 5698, 4926, 4272, 3714, 3238, 2830,
 		2479, 2176, 1915, 1688, 1497, 1330, 1185, 1058, 947, 849, 764, 688, 621,
 		561, 509, 462, 420, 383, 349, 319, 292, 268, 246, 226, 208, 192, 178,
@@ -21,9 +21,12 @@ void adcSelect(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 
 //void calTemp(ADC_HandleTypeDef *hadc, ADC_ChannelConfTypeDef *sConfig,
 //		NTC_TypeDef *uNTC) {
-int getTableNum(NTC_TypeDef *uNTC) {
-	int i = 0;
-	for (i = 0; i < sizeof(ntc3960_100k) - 1; i++) {
+int32_t getTableNum(NTC_TypeDef *uNTC) {
+	int length;
+	length = sizeof(ntc3960_100k) / sizeof(ntc3960_100k[0]);
+	int32_t i = 0;
+//	for (i = 0; i < sizeof(ntc3960_100k) - 1; i++) {
+	for (i = 0; i < length; i++) {
 		/* Use of > determined by inspection of data - colder temps have higher ADC value */
 		if (uNTC->resistor > ntc3960_100k[i])
 			return i;
@@ -44,7 +47,7 @@ float calTemp(NTC_TypeDef *uNTC, uint32_t inoputAdcValue) {
 	uNTC->resistor = uNTC->resistor;
 
 	uNTC->tableNum = getTableNum(uNTC);
-	int16_t temp1, temp2;
+	int32_t temp1, temp2;
 	temp1 = -40 + (uNTC->tableNum * 5);
 	temp2 = -40 + ((uNTC->tableNum + 1) * 5);
 // for over temp
