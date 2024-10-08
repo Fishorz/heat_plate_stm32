@@ -49,37 +49,45 @@ void startScreeen(MEUN_TypeDef *meun) {
 }
 
 void standby_page(MEUN_TypeDef *meun) {
+	if (meun->lastIndex != Standby){
+		HD44780_Clear();
+		HD44780_SetCursor(1, 0);
+	//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+		HD44780_PrintStr("Standby        ");
+		HD44780_SetCursor(0, 1);
+		HD44780_PrintStr("N_T:");
+		HD44780_SetCursor(9, 1);
+		HD44780_PrintStr("S_T:");
+	}
+
 	char displayNowTemp[10];
 	char displayTargetTemp[10];
 	itoa(meun->nowTemp, displayNowTemp, 10);
 	itoa(meun->targetTemp, displayTargetTemp, 10);
-	HD44780_SetCursor(1, 0);
-//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
-	HD44780_PrintStr("Standby        ");
-	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("N_T:");
 	HD44780_SetCursor(5, 1);
 	HD44780_PrintStr(displayNowTemp);
-	HD44780_SetCursor(9, 1);
-	HD44780_PrintStr("S_T:");
 	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
 }
 
 void heating_page(MEUN_TypeDef *meun) {
+	if (meun->lastIndex != Heating){
+		HD44780_Clear();
+		HD44780_SetCursor(0, 0);
+	//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
+		HD44780_PrintStr("Heating        ");
+		HD44780_SetCursor(0, 1);
+		HD44780_PrintStr("N_T:");
+		HD44780_SetCursor(9, 1);
+		HD44780_PrintStr("S_T:");
+	}
+
 	char displayNowTemp[10];
 	char displayTargetTemp[10];
 	itoa(meun->nowTemp, displayNowTemp, 10);
 	itoa(meun->targetTemp, displayTargetTemp, 10);
-	HD44780_SetCursor(0, 0);
-//	HD44780_PrintStr("-xxxxxxxxxxxxxx<");
-	HD44780_PrintStr("Heating        ");
-	HD44780_SetCursor(0, 1);
-	HD44780_PrintStr("N_T:");
 	HD44780_SetCursor(5, 1);
 	HD44780_PrintStr(displayNowTemp);
-	HD44780_SetCursor(9, 1);
-	HD44780_PrintStr("S_T:");
 	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
 }
@@ -90,16 +98,17 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 
 	if (meun->meunNeedUpdate) {
 		meun->meunNeedUpdate = 0;
-		HD44780_Clear();
 		switch (meun->meunIndex) {
 //		case welcome:
 //			startScreeen(meun);
 //			break;
 		case Standby:
 			standby_page(meun);
+			meun->lastIndex = Standby;
 			break;
 		case Heating:
 			heating_page(meun);
+			meun->lastIndex = Heating;
 			break;
 		default:
 			return;

@@ -138,12 +138,13 @@ int main(void)
 			displayMeunHandler(&meun);
 		}
 
-		if(counter_TM2 % 20 == 0){
-			currentTemp = calTemp(&ntc0, adcValue);
+		if(counter_TM2 % 10 == 0){
+			currentTemp = currentTemp * 15 + calTemp(&ntc0, adcValue);
+			currentTemp /= 16;
 //			_resistor = *&ntc0.resistor;
 //			_num= getTableNum(&ntc0);
-			if(meun.nowTemp != (int)currentTemp)
-			meun.nowTemp = currentTemp;
+			if(meun.nowTemp != (int)(currentTemp+0.5))
+			meun.nowTemp = (currentTemp+0.5);
 			meun.meunNeedUpdate = 1;
 		}
 
@@ -153,7 +154,7 @@ int main(void)
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
 		}
 
-		if(counter_TM3 % 10 == 0){
+		if(counter_TM3 % 1 == 0){
 			if(meun.meunIndex == Heating){
 				cal_pid(&heating, currentTemp, meun.targetTemp);
 				TIM3->CCR2 = heating.pwm_duty;

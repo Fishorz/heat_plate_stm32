@@ -29,6 +29,7 @@ typedef struct  {   // Structure declaration
 
 
 	enum display_item meunIndex;
+	enum display_item lastIndex;
 
 }MEUN_TypeDef;
 

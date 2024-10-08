@@ -25,18 +25,16 @@
 #define PID_DT 0.1
 
 typedef struct {
-	float temp;
-	float uPid;
-	float P, I, D;
-	float error;
+	int P, I, D;
+	long int error;
 	float derivative ;
-	float previousError;
-	float integralError;
-	float pwm_duty;
+	long int previousError;
+	long int integralError;
+	int pwm_duty;
 
-	float Kp;
-	float Ki;
-	float Kd;
+	long int Kp;
+	long int Ki;
+	long int Kd;
 	float dt;
 }HEATING_TypeDef;
 
