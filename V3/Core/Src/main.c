@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "dma.h"
 #include "i2c.h"
+#include "spi.h"
 #include "tim.h"
 #include "gpio.h"
 
@@ -30,6 +31,7 @@
 #include"NTCtempSensor.h"
 #include "heating.h"
 #include "config.h"
+#include"MAX6675.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -112,6 +114,7 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C1_Init();
   MX_TIM4_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_Base_Start_IT(&htim3);
@@ -144,7 +147,8 @@ int main(void)
 //			_resistor = *&ntc0.resistor;
 //			_num= getTableNum(&ntc0);
 			if(meun.nowTemp != (int)(currentTemp+0.5))
-			meun.nowTemp = (currentTemp+0.5);
+//			meun.nowTemp = (currentTemp+0.5);
+				meun.nowTemp = Max6675_Read_Temp();
 			meun.meunNeedUpdate = 1;
 		}
 

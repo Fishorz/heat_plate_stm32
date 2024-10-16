@@ -3,33 +3,29 @@
 
 void init_pid(HEATING_TypeDef *heating){
 
-	heating->Kp = 0.1;
-	heating->Ki = 0;
+	heating->Kp = 1;
+	heating->Ki = 2;
 	heating->Kd = 0;
-	heating->dt = 0.1f;
+	heating->dt = 0.01;
 }
 
-void cal_pid(HEATING_TypeDef *heating, uint32_t nowTemp, uint32_t targetTemp){
+void cal_pid(HEATING_TypeDef *heating, float nowTemp, int32_t targetTemp){
 
-	heating->error  =  targetTemp - nowTemp;
-	heating->integralError += heating->error + heating->previousError;
-	heating->derivative = (heating->error - heating->previousError)/heating->dt;
+	heating->error  =  (((float) targetTemp) - nowTemp) * 4096 + 0.5;
 
-	heating->P = heating->Kp * heating->error;
-	heating->I = heating->Ki * heating->integralError * (heating->dt/2.0);
-	heating->D = heating->Kd * heating->derivative;
+	if (heating->error < 16384 && heating->error >-16384){
+		heating->integralError += (heating->Ki * heating->error+8192)>>14;
+	}else{
+		heating->integralError = 0;
+	}
 
-	heating->uPid = heating->P + heating->I + heating->D;
+	heating->integralError = heating->integralError < -102400 ? -102400 : heating->integralError;
+	heating->integralError = heating->integralError > 102400 ? 102400 : heating->integralError;
 
-	if(heating->uPid > 0.8)
-		{
-		heating->uPid = 0.8;
-		}
-		if(heating->uPid < 0.0)
-		{
-			heating->uPid = 0.0;
-		}
-		float duty = heating->uPid * 200.0;
-		heating->pwm_duty = (int) duty;
-		heating->previousError = heating->error;
+	heating->pwm_duty = ((heating->Kp * heating->error + 64)>>7) + ((heating->integralError+1024)>>11);
+
+	heating->pwm_duty = heating->pwm_duty < 0 ? 0 : heating->pwm_duty;
+	heating->pwm_duty = heating->pwm_duty > 200 ? 200 : heating->pwm_duty;
+
+
 }

@@ -15,8 +15,8 @@ typedef struct  {   // Structure declaration
 //	uint8_t previousMeunIndex;
 	uint8_t meunNeedUpdate; //is the meun need to update?
 
-	uint32_t nowTemp;
-	uint16_t targetTemp;
+	int32_t nowTemp;
+	int16_t targetTemp;
 	uint8_t state; 			//is heating or standby
 	char status[8];			//for lcd transmit char
 
@@ -29,6 +29,7 @@ typedef struct  {   // Structure declaration
 
 
 	enum display_item meunIndex;
+	enum display_item lastIndex;
 
 }MEUN_TypeDef;
 
