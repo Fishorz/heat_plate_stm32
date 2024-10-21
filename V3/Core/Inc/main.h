@@ -57,10 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define FAN_Pin GPIO_PIN_6
+#define FAN_Pin GPIO_PIN_7
 #define FAN_GPIO_Port GPIOA
-#define HEATER_Pin GPIO_PIN_7
-#define HEATER_GPIO_Port GPIOA
 #define SIGNAL_Pin GPIO_PIN_0
 #define SIGNAL_GPIO_Port GPIOB
 #define encoderBtn_Pin GPIO_PIN_5
