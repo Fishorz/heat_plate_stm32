@@ -162,10 +162,10 @@ int main(void)
 		if(counter_TM3 % 1 == 0){
 			if(meun.meunIndex == Heating){
 				cal_pid(&heating, currentTemp, meun.targetTemp);
-				TIM3->CCR2 = heating.pwm_duty;
+				TIM3->CCR1 = heating.pwm_duty;
 			} else {
 				heating.pwm_duty = 0;
-				TIM3->CCR2 = 0;
+				TIM3->CCR1 = 0;
 			}
 		}
 
