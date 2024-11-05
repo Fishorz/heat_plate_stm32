@@ -12,4 +12,6 @@
 #define MIN_TEMP 10
 #define INIT_TEMP 160
 
+#define SENSOR_TYPE K_THERMOCOUPLE // K_THERMOCOUPLE or PT1000
+
 #endif /* INC_CONFIG_H_ */
