@@ -93,7 +93,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+   HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -137,7 +137,7 @@ int main(void)
 
 		selectMeunHandler(&meun, &encoder);
 
-		if (counter_TM2 % 50 == 0) {
+		if (counter_TM2 % 25 == 0) {
 			displayMeunHandler(&meun);
 		}
 
@@ -147,15 +147,16 @@ int main(void)
 			currentTemp = Max6675_Read_Temp();
 //			_resistor = *&ntc0.resistor;
 //			_num= getTableNum(&ntc0);
-			if(meun.nowTemp != (int)(currentTemp+0.5))
-			meun.nowTemp = (currentTemp+0.5);
+			if(meun.nowTemp != (int)(currentTemp+0.5)){
+				meun.nowTemp = (currentTemp+0.5);
+				meun.meunNeedUpdate = 1;
+			}
 //				meun.nowTemp = Max6675_Read_Temp();
-			meun.meunNeedUpdate = 1;
 		}
 
-		if(meun.nowTemp > 28){
+		if(meun.nowTemp > 40){
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, SET);
-		} else {
+		} else if(meun.nowTemp <30){
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
 		}
 

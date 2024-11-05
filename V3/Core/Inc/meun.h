@@ -17,8 +17,8 @@ typedef struct  {   // Structure declaration
 
 	int32_t nowTemp;
 	int16_t targetTemp;
-	uint8_t state; 			//is heating or standby
-	char status[8];			//for lcd transmit char
+//	uint8_t state; 			//is heating or standby
+//	char status[8];			//for lcd transmit char
 
 	//for display meun state
 	enum display_item{
