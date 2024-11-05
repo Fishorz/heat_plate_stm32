@@ -118,7 +118,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 	HAL_ADC_Start_DMA(&hadc1, &adcValue, 1);
 	meunInit(&meun, INIT_TEMP);
@@ -142,20 +142,18 @@ int main(void)
 		}
 
 		if(counter_TM2 % 10 == 0){
-
 //			currentTemp = currentTemp * 15 + calTemp(&ntc0, adcValue);
 //			currentTemp /= 16;
 			currentTemp = Max6675_Read_Temp();
-
 //			_resistor = *&ntc0.resistor;
 //			_num= getTableNum(&ntc0);
 			if(meun.nowTemp != (int)(currentTemp+0.5))
 			meun.nowTemp = (currentTemp+0.5);
-//			meun.nowTemp = Max6675_Read_Temp();
+//				meun.nowTemp = Max6675_Read_Temp();
 			meun.meunNeedUpdate = 1;
 		}
 
-		if(meun.nowTemp > 50){
+		if(meun.nowTemp > 28){
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, SET);
 		} else {
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
