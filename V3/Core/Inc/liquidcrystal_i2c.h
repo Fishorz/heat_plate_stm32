@@ -2,6 +2,7 @@
 #define LIQUIDCRYSTAL_I2C_H_
 
 #include "stm32f1xx_hal.h"
+#include "config.h"
 
 /* Command */
 #define LCD_CLEARDISPLAY 0x01
@@ -55,7 +56,7 @@
 #define RS 0x01
 
 /* Device I2C Address */
-#define DEVICE_ADDR     (0x27 << 1)
+#define DEVICE_ADDR     (LCD_ADDRESS << 1)
 
 void startScreeen();
 void HD44780_Init(uint8_t rows);
