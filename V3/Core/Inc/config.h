@@ -13,6 +13,6 @@
 #define INIT_TEMP 110
 
 #define SENSOR_TYPE K_THERMOCOUPLE // K_THERMOCOUPLE or PT1000
-#define LCD_ADDRESS 0x3F // 0x27 or 0x3F
+#define LCD_ADDRESS 0x27 // 0x27 or 0x3F
 
 #endif /* INC_CONFIG_H_ */

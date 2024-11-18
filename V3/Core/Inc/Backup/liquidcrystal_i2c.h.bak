@@ -2,6 +2,7 @@
 #define LIQUIDCRYSTAL_I2C_H_
 
 #include "stm32f1xx_hal.h"
+#include "config.h"
 
 /* Command */
 #define LCD_CLEARDISPLAY 0x01

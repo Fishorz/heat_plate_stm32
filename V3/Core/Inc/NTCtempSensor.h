@@ -12,7 +12,7 @@
 #include <stdio.h>
 //#include "stm32f1xx_hal_adc.h"
 #define supplyVoltage 3.3
-#define refenceResistor 1 * 1000 //120k ohm
+#define refenceResistor 10 * 1000 //120k ohm
 
 //const uint32_t ADC_CHANNEL[3] = { ADC_CHANNEL_0, ADC_CHANNEL_1, ADC_CHANNEL_2 };
 
@@ -20,6 +20,7 @@
 typedef struct {
 	uint32_t _NTC_adcvalue;
 	uint16_t tableNum;
+	float voltage;
 	double temp;
 	long double resistor;
 

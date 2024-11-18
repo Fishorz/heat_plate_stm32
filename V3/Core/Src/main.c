@@ -93,7 +93,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-   HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -139,8 +139,10 @@ int main(void)
 
 		if (counter_TM2 % 25 == 0) {
 			displayMeunHandler(&meun);
+
 		}
 
+//for max6675 update
 		if(counter_TM2 % 10 == 0){
 //			currentTemp = currentTemp * 15 + calTemp(&ntc0, adcValue);
 //			currentTemp /= 16;

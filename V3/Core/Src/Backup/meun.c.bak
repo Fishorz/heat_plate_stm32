@@ -60,11 +60,11 @@ void standby_page(MEUN_TypeDef *meun) {
 		HD44780_PrintStr("S_T:");
 	}
 
-	char displayNowTemp[10];
-	char displayTargetTemp[10];
+	char displayNowTemp[15];
+	char displayTargetTemp[15];
 	itoa(meun->nowTemp, displayNowTemp, 10);
 	itoa(meun->targetTemp, displayTargetTemp, 10);
-	HD44780_SetCursor(5, 1);
+	HD44780_SetCursor(4, 1);
 	HD44780_PrintStr(displayNowTemp);
 	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
@@ -82,11 +82,12 @@ void heating_page(MEUN_TypeDef *meun) {
 		HD44780_PrintStr("S_T:");
 	}
 
-	char displayNowTemp[10];
-	char displayTargetTemp[10];
+
+	char displayNowTemp[15];
+	char displayTargetTemp[15];
 	itoa(meun->nowTemp, displayNowTemp, 10);
 	itoa(meun->targetTemp, displayTargetTemp, 10);
-	HD44780_SetCursor(5, 1);
+	HD44780_SetCursor(4, 1);
 	HD44780_PrintStr(displayNowTemp);
 	HD44780_SetCursor(13, 1);
 	HD44780_PrintStr(displayTargetTemp);
@@ -98,6 +99,17 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 
 	if (meun->meunNeedUpdate) {
 		meun->meunNeedUpdate = 0;
+
+		if(meun->targetTemp < 100){
+			HD44780_SetCursor(15, 1);
+			HD44780_PrintStr(" ");
+		}
+
+		if(meun->nowTemp < 100){
+			HD44780_SetCursor(6, 1);
+			HD44780_PrintStr(" ");
+		}
+
 		switch (meun->meunIndex) {
 //		case welcome:
 //			startScreeen(meun);
