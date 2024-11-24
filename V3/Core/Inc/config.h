@@ -12,6 +12,9 @@
 #define MIN_TEMP 10
 #define INIT_TEMP 110
 
+#define ERROR_TEMP 3 //degree
+#define TIME_OUT 5 *1000 //ms
+
 #define SENSOR_TYPE K_THERMOCOUPLE // K_THERMOCOUPLE or PT1000
 #define LCD_ADDRESS 0x27 // 0x27 or 0x3F
 
