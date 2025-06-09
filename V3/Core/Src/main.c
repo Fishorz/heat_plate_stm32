@@ -40,6 +40,7 @@ ENCODER_TypeDef encoder;
 MEUN_TypeDef meun;
 NTC_TypeDef ntc0;
 HEATING_TypeDef heating;
+ERROR_TypeDef _error;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -133,16 +134,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//		encoder_State = (TIM4->CNT) >> 2;
 
 		selectMeunHandler(&meun, &encoder);
-
+		//each tick = 50ms
+		//per 25*50ms run once
 		if (counter_TM2 % 25 == 0) {
-			displayMeunHandler(&meun);
+			displayMeunHandler(&meun, &_error);
 
 		}
 
-//for max6675 update
+// per 20*50ms run once
+//for max6675 update and error check
 		if(counter_TM2 % 10 == 0){
 //			currentTemp = currentTemp * 15 + calTemp(&ntc0, adcValue);
 //			currentTemp /= 16;
@@ -153,6 +155,7 @@ int main(void)
 				meun.nowTemp = (currentTemp+0.5);
 				meun.meunNeedUpdate = 1;
 			}
+			errorHandler(&_error, currentTemp);
 //				meun.nowTemp = Max6675_Read_Temp();
 		}
 
@@ -162,6 +165,7 @@ int main(void)
 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, RESET);
 		}
 
+		// per 1*36ms run once
 		if(counter_TM3 % 1 == 0){
 			if(meun.meunIndex == Heating){
 				cal_pid(&heating, currentTemp, meun.targetTemp);

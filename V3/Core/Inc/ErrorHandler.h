@@ -27,8 +27,12 @@ typedef struct  {   // Structure declaration
 	uint8_t TimeOutIsActivate;
 	int16_t errorOfTemp; //how much error mean reach the targetTemp and don't activated
 	int32_t nowTemp;
-	uint32_t tick;
+	int32_t tempBefore2Tick;
+	int32_t targetTemp;
+	uint32_t _tick;
 	uint8_t errorState;
+	uint8_t tempReached;
+
 
 	//for display meun state
 	enum error_item{
@@ -39,5 +43,9 @@ typedef struct  {   // Structure declaration
 
 }ERROR_TypeDef;
 
-void ErrorHandlerInit(ERROR_TypeDef *error);
-void  ErrorHandler(ERROR_TypeDef *error, float nowTemp, uint32_t counter);
+void errorHandlerInit(ERROR_TypeDef *error);
+void  errorHandler(ERROR_TypeDef *error, float nowTemp);
+
+uint8_t increaseTempTimeOut(ERROR_TypeDef *error);
+uint8_t overRange(ERROR_TypeDef *error);
+uint8_t tempReached(ERROR_TypeDef *error);

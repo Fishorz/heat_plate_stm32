@@ -20,7 +20,11 @@
  |N_T:XXX  S_T:XXX|
  ------------------
 
-
+In Error Display
+ ------------------
+ |Error  		  |
+ |XXXXX     N_T:  |
+ ------------------
  */
 #include <meun.h>
 #include "encoder.h"
@@ -33,6 +37,7 @@ void meunInit(MEUN_TypeDef *meun, int defaultTemp) {
 	meun->meunNeedUpdate = 1;
 	meun->meunIndex = Standby;
 	meun->nowTemp = 0;
+	meun->errorOccur = 0;
 	meun->targetTemp = defaultTemp;
 	HD44780_Init(2);
 }
@@ -93,10 +98,16 @@ void heating_page(MEUN_TypeDef *meun) {
 	HD44780_PrintStr(displayTargetTemp);
 }
 
-//To control what should displaying
-void displayMeunHandler(MEUN_TypeDef *meun) {
-	//*_*hard code update state to Ldisplay something
+void error_page(MEUN_TypeDef *meun, ERROR_TypeDef *_error){
+	HD44780_Clear();
+	HD44780_SetCursor(0, 0);
+	HD44780_PrintStr("Error");
+	HD44780_SetCursor(0, 1);
 
+}
+//To control what should displaying
+void displayMeunHandler(MEUN_TypeDef *meun, ERROR_TypeDef *_error) {
+	//*_*hard code update state to Ldisplay something
 	if (meun->meunNeedUpdate) {
 		meun->meunNeedUpdate = 0;
 
@@ -121,6 +132,10 @@ void displayMeunHandler(MEUN_TypeDef *meun) {
 		case Heating:
 			heating_page(meun);
 			meun->lastIndex = Heating;
+			break;
+		case Error_State:
+			error_page(meun, _error);
+			meun->lastIndex = Error_State;
 			break;
 		default:
 			return;

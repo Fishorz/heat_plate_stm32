@@ -6,7 +6,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "encoder.h"
-
+#include "ErrorHandler.h"
 
 
 typedef struct  {   // Structure declaration
@@ -14,7 +14,7 @@ typedef struct  {   // Structure declaration
 //	uint8_t meunLayer;
 //	uint8_t previousMeunIndex;
 	uint8_t meunNeedUpdate; //is the meun need to update?
-
+	uint8_t errorOccur;
 	int32_t nowTemp;
 	int16_t targetTemp;
 //	uint8_t state; 			//is heating or standby
@@ -24,7 +24,8 @@ typedef struct  {   // Structure declaration
 	enum display_item{
 		welcome,
 		Standby,
-		Heating
+		Heating,
+		Error_State
 	}ITEM_Enum;
 
 
@@ -38,10 +39,12 @@ void meunInit(MEUN_TypeDef *meun, int defaultTemp);
 void updateDisplay(MEUN_TypeDef *meun);
 
 void startScreeen(MEUN_TypeDef *meun);
-void displayMeunHandler(MEUN_TypeDef *meun);
+void displayMeunHandler(MEUN_TypeDef *meun, ERROR_TypeDef *_error);
 void selectMeunHandler(MEUN_TypeDef *meun, ENCODER_TypeDef *encoder);
 
 void standby_page(MEUN_TypeDef *meun);
+void heating_page(MEUN_TypeDef *meun);
+void error_page(MEUN_TypeDef *meun, ERROR_TypeDef *_error);
 
 void first_page();
 void second_page();
